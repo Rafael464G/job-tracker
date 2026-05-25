@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { Application } from '@/types/application'
 import { useLanguage } from './LanguageProvider'
 import StatsBar from './StatsBar'
+import ConversionFunnel from './ConversionFunnel'
 import ActivityChart from './ActivityChart'
 import ApplicationList from './ApplicationList'
 import KanbanBoard from './KanbanBoard'
@@ -27,6 +28,7 @@ export default function DashboardContent({ applications }: { applications: Appli
       )}
 
       <StatsBar applications={applications} />
+      <ConversionFunnel applications={applications} />
       <FollowUpAlert applications={applications} onEdit={setAlertEditing} />
       <ActivityChart applications={applications} />
 

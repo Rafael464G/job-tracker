@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useTransition, useMemo } from 'react'
+import { useState, useTransition, useMemo, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Application, Status, STATUS_LABELS, STATUS_COLORS, STATUS_BORDER, STATUS_BG } from '@/types/application'
 import { createClient } from '@/lib/supabase/client'
@@ -8,6 +8,8 @@ import { useRouter } from 'next/navigation'
 import ApplicationForm from './ApplicationForm'
 import { useToast } from './Toast'
 import { useLanguage } from './LanguageProvider'
+
+const STATUSES: Status[] = ['applied', 'interview', 'offer', 'rejected']
 
 const FILTERS = [
   { label: 'Todas', value: 'all' },
@@ -72,6 +74,19 @@ export default function ApplicationList({ applications }: { applications: Applic
   const [sort, setSort] = useState('date_desc')
   const [editing, setEditing] = useState<Application | null | undefined>(undefined)
   const [deletingId, setDeletingId] = useState<string | null>(null)
+  const [statusPickerId, setStatusPickerId] = useState<string | null>(null)
+  const pickerRef = useRef<HTMLDivElement | null>(null)
+
+  useEffect(() => {
+    if (!statusPickerId) return
+    function handleOutsideClick(e: MouseEvent) {
+      if (pickerRef.current && !pickerRef.current.contains(e.target as Node)) {
+        setStatusPickerId(null)
+      }
+    }
+    document.addEventListener('mousedown', handleOutsideClick)
+    return () => document.removeEventListener('mousedown', handleOutsideClick)
+  }, [statusPickerId])
 
   const visible = useMemo(() => {
     let list = filter === 'all' ? applications : applications.filter((a) => a.status === filter)
@@ -104,6 +119,14 @@ export default function ApplicationList({ applications }: { applications: Applic
     setDeletingId(null)
     if (error) { toast(t.toast.delete_error, 'error'); return }
     toast(t.toast.deleted)
+    refresh()
+  }
+
+  async function handleStatusUpdate(id: string, newStatus: Status) {
+    setStatusPickerId(null)
+    const supabase = createClient()
+    const { error } = await supabase.from('applications').update({ status: newStatus }).eq('id', id)
+    if (error) { toast(t.toast.delete_error, 'error'); return }
     refresh()
   }
 
@@ -228,11 +251,34 @@ export default function ApplicationList({ applications }: { applications: Applic
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-2">
                   <p className="font-semibold">{app.company}</p>
-                  <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_COLORS[app.status]}`}>
-                    {t.status[app.status]}
-                  </span>
+                  <div className="relative" ref={statusPickerId === app.id ? pickerRef : null}>
+                    <button
+                      onClick={() => setStatusPickerId(statusPickerId === app.id ? null : app.id)}
+                      className={`rounded-full px-2 py-0.5 text-xs font-medium transition hover:opacity-80 ${STATUS_COLORS[app.status]}`}
+                      title={t.list.change_status}
+                    >
+                      {t.status[app.status]} ▾
+                    </button>
+                    {statusPickerId === app.id && (
+                      <div className="absolute left-0 top-full z-20 mt-1 w-36 rounded-lg border border-zinc-200 bg-white p-1 shadow-lg dark:border-zinc-700 dark:bg-zinc-900">
+                        {STATUSES.map((s) => (
+                          <button
+                            key={s}
+                            onClick={() => handleStatusUpdate(app.id, s)}
+                            disabled={s === app.status}
+                            className={`w-full rounded px-2.5 py-1.5 text-left text-xs font-medium transition ${STATUS_COLORS[s]} ${s === app.status ? 'opacity-40 cursor-default' : 'hover:opacity-80'}`}
+                          >
+                            {t.status[s]}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
                 <p className="mt-0.5 text-sm text-zinc-500">{app.position}</p>
+                {app.salary && (
+                  <p className="mt-0.5 text-xs text-zinc-400">💰 {app.salary}</p>
+                )}
                 <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-zinc-400">
                   <span>{formatDate(app.applied_at)}</span>
                   {app.follow_up_at && (() => {

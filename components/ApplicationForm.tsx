@@ -20,6 +20,7 @@ const empty = {
   position: '',
   applied_at: new Date().toISOString().split('T')[0],
   status: 'applied' as Status,
+  salary: '',
   url: '',
   notes: '',
   follow_up_at: '',
@@ -39,6 +40,7 @@ export default function ApplicationForm({ application, onClose }: Props) {
         position: application.position,
         applied_at: application.applied_at,
         status: application.status,
+        salary: application.salary ?? '',
         url: application.url ?? '',
         notes: application.notes ?? '',
         follow_up_at: application.follow_up_at ?? '',
@@ -83,6 +85,7 @@ export default function ApplicationForm({ application, onClose }: Props) {
       position: form.position.trim(),
       applied_at: form.applied_at,
       status: form.status,
+      salary: form.salary.trim() || null,
       url: form.url.trim() || null,
       notes: form.notes.trim() || null,
       follow_up_at: form.follow_up_at || null,
@@ -183,6 +186,19 @@ export default function ApplicationForm({ application, onClose }: Props) {
                   ))}
                 </select>
               </div>
+            </div>
+
+            <div>
+              <label className="mb-1.5 block text-sm font-medium">
+                {t.form.salary} <span className="text-zinc-400">{t.form.salary_optional}</span>
+              </label>
+              <input
+                type="text"
+                value={form.salary}
+                onChange={(e) => set('salary', e.target.value)}
+                placeholder={t.form.salary_placeholder}
+                className="field"
+              />
             </div>
 
             <div>

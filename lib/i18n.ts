@@ -21,6 +21,12 @@ export const translations = {
       company_asc: 'Company (A-Z)',
       status: 'Status',
     },
+    funnel: {
+      title: 'Conversion Rates',
+      interview_rate: 'Interview Rate',
+      offer_rate: 'Offer Rate',
+      rejection_rate: 'Rejection Rate',
+    },
     form: {
       title_new: 'New application',
       title_edit: 'Edit application',
@@ -30,6 +36,9 @@ export const translations = {
       position_placeholder: 'e.g. Frontend Developer',
       date: 'Date',
       status: 'Status',
+      salary: 'Salary',
+      salary_optional: '(optional)',
+      salary_placeholder: 'e.g. $60,000 – $80,000',
       url: 'Job listing URL',
       url_optional: '(optional)',
       url_placeholder: 'https://...',
@@ -59,6 +68,7 @@ export const translations = {
       confirm_delete: 'Delete this application?',
       edit: 'Edit',
       delete: 'Delete',
+      change_status: 'Click to change status',
     },
     kanban: {
       edit: 'Edit',
@@ -87,6 +97,8 @@ export const translations = {
       list: 'List',
       kanban: 'Kanban',
       count: (n: number) => `${n} application${n !== 1 ? 's' : ''}`,
+      activity_title: 'Application Activity',
+      activity_tooltip: 'applications',
     },
     auth: {
       email: 'Email',
@@ -125,6 +137,12 @@ export const translations = {
       company_asc: 'Empresa (A-Z)',
       status: 'Estado',
     },
+    funnel: {
+      title: 'Tasas de conversión',
+      interview_rate: 'Tasa de entrevista',
+      offer_rate: 'Tasa de oferta',
+      rejection_rate: 'Tasa de rechazo',
+    },
     form: {
       title_new: 'Nueva postulación',
       title_edit: 'Editar postulación',
@@ -134,6 +152,9 @@ export const translations = {
       position_placeholder: 'Ej. Frontend Developer',
       date: 'Fecha',
       status: 'Estado',
+      salary: 'Salario',
+      salary_optional: '(opcional)',
+      salary_placeholder: 'Ej. $60,000 – $80,000',
       url: 'Enlace a la oferta',
       url_optional: '(opcional)',
       url_placeholder: 'https://...',
@@ -163,6 +184,7 @@ export const translations = {
       confirm_delete: '¿Eliminar esta postulación?',
       edit: 'Editar',
       delete: 'Eliminar',
+      change_status: 'Clic para cambiar estado',
     },
     kanban: {
       edit: 'Editar',
@@ -191,6 +213,8 @@ export const translations = {
       list: 'Lista',
       kanban: 'Kanban',
       count: (n: number) => `${n} ${n !== 1 ? 'postulaciones' : 'postulación'}`,
+      activity_title: 'Actividad de postulaciones',
+      activity_tooltip: 'postulaciones',
     },
     auth: {
       email: 'Correo electrónico',

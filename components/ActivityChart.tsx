@@ -3,6 +3,7 @@
 import { useMemo } from 'react'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts'
 import { Application } from '@/types/application'
+import { useLanguage } from './LanguageProvider'
 
 function getWeekLabel(dateStr: string) {
   const [y, m, d] = dateStr.split('-').map(Number)
@@ -18,6 +19,7 @@ function getMonthLabel(dateStr: string) {
 }
 
 export default function ActivityChart({ applications }: { applications: Application[] }) {
+  const { t } = useLanguage()
   const data = useMemo(() => {
     if (applications.length === 0) return []
 
@@ -44,7 +46,7 @@ export default function ActivityChart({ applications }: { applications: Applicat
   return (
     <div className="rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900">
       <p className="mb-4 text-sm font-medium text-zinc-700 dark:text-zinc-300">
-        Actividad de postulaciones
+        {t.dashboard.activity_title}
       </p>
       <ResponsiveContainer width="100%" height={120}>
         <BarChart data={data} barCategoryGap="30%">
@@ -65,7 +67,7 @@ export default function ActivityChart({ applications }: { applications: Applicat
               background: '#ffffff',
               color: '#18181b',
             }}
-            formatter={(value) => [value, 'postulaciones']}
+            formatter={(value) => [value, t.dashboard.activity_tooltip]}
           />
           <Bar dataKey="count" radius={[4, 4, 0, 0]}>
             {data.map((entry, i) => (

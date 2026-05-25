@@ -10,6 +10,7 @@ export interface Application {
   url: string | null
   notes: string | null
   follow_up_at: string | null
+  salary: string | null
   created_at: string
   updated_at: string
 }

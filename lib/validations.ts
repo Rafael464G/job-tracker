@@ -8,6 +8,7 @@ export const applicationSchema = z.object({
   url: z.string().url('URL inválida').or(z.literal('')).optional(),
   notes: z.string().max(1000).optional(),
   follow_up_at: z.string().optional(),
+  salary: z.string().max(100).optional(),
 })
 
 export type ApplicationInput = z.infer<typeof applicationSchema>
