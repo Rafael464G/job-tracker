@@ -11,6 +11,7 @@ export interface Application {
   notes: string | null
   follow_up_at: string | null
   salary: string | null
+  is_starred: boolean
   created_at: string
   updated_at: string
 }

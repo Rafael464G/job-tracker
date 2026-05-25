@@ -99,6 +99,7 @@ export default function ApplicationList({ applications }: { applications: Applic
     }
 
     return [...list].sort((a, b) => {
+      if (a.is_starred !== b.is_starred) return a.is_starred ? -1 : 1
       if (sort === 'date_desc') return b.applied_at.localeCompare(a.applied_at)
       if (sort === 'date_asc') return a.applied_at.localeCompare(b.applied_at)
       if (sort === 'company_asc') return a.company.localeCompare(b.company)
@@ -119,6 +120,12 @@ export default function ApplicationList({ applications }: { applications: Applic
     setDeletingId(null)
     if (error) { toast(t.toast.delete_error, 'error'); return }
     toast(t.toast.deleted)
+    refresh()
+  }
+
+  async function handleStar(id: string, current: boolean) {
+    const supabase = createClient()
+    await supabase.from('applications').update({ is_starred: !current }).eq('id', id)
     refresh()
   }
 
@@ -242,7 +249,11 @@ export default function ApplicationList({ applications }: { applications: Applic
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, x: -20 }}
               transition={{ duration: 0.18, delay: i * 0.03 }}
-              className={`flex items-start justify-between gap-4 rounded-xl border border-l-4 border-zinc-200 bg-white p-4 transition hover:border-zinc-300 hover:shadow-sm dark:border-zinc-800 dark:bg-zinc-900 dark:hover:border-zinc-700 ${STATUS_BORDER[app.status]}`}
+              className={`flex items-start justify-between gap-4 rounded-xl border border-l-4 bg-white p-4 transition hover:shadow-sm dark:bg-zinc-900 ${
+                app.is_starred
+                  ? 'border-amber-200 border-l-amber-400 hover:border-amber-300 dark:border-amber-800/40 dark:border-l-amber-400'
+                  : `border-zinc-200 hover:border-zinc-300 dark:border-zinc-800 dark:hover:border-zinc-700 ${STATUS_BORDER[app.status]}`
+              }`}
             >
               <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-sm font-bold ${STATUS_BG[app.status]}`}>
                 {app.company.slice(0, 2).toUpperCase()}
@@ -306,6 +317,17 @@ export default function ApplicationList({ applications }: { applications: Applic
               </div>
 
               <div className="flex shrink-0 flex-col gap-1 sm:flex-row">
+                <button
+                  onClick={() => handleStar(app.id, app.is_starred)}
+                  title={app.is_starred ? t.list.unstar : t.list.star}
+                  className={`rounded-lg px-2 py-1.5 text-sm transition ${
+                    app.is_starred
+                      ? 'text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/20'
+                      : 'text-zinc-300 hover:bg-zinc-100 hover:text-amber-400 dark:hover:bg-zinc-800'
+                  }`}
+                >
+                  {app.is_starred ? '★' : '☆'}
+                </button>
                 <button
                   onClick={() => setEditing(app)}
                   className="rounded-lg px-2.5 py-1.5 text-xs font-medium text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800"

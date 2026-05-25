@@ -6,8 +6,8 @@ const PUBLIC_PATHS = ['/login', '/signup', '/auth']
 export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname
 
-  // Skip auth check for public routes
-  if (PUBLIC_PATHS.some((p) => pathname.startsWith(p))) {
+  // Landing page and other public routes
+  if (pathname === '/' || PUBLIC_PATHS.some((p) => pathname.startsWith(p))) {
     return NextResponse.next({ request })
   }
 
