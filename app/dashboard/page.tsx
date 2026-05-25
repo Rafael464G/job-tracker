@@ -2,8 +2,7 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import LogoutButton from '@/components/LogoutButton'
 import ThemeToggle from '@/components/ThemeToggle'
-import StatsBar from '@/components/StatsBar'
-import ApplicationList from '@/components/ApplicationList'
+import DashboardContent from '@/components/DashboardContent'
 import { Application } from '@/types/application'
 
 export default async function DashboardPage() {
@@ -31,9 +30,8 @@ export default async function DashboardPage() {
         </div>
       </header>
 
-      <main className="mx-auto max-w-4xl space-y-6 px-4 py-8">
-        <StatsBar applications={apps} />
-        <ApplicationList applications={apps} />
+      <main className="mx-auto max-w-4xl px-4 py-8">
+        <DashboardContent applications={apps} />
       </main>
     </div>
   )
