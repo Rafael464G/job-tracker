@@ -57,6 +57,8 @@ export const translations = {
       new_button: '+ New',
       updating: 'Updating…',
       confirm_delete: 'Delete this application?',
+      edit: 'Edit',
+      delete: 'Delete',
     },
     kanban: {
       edit: 'Edit',
@@ -159,6 +161,8 @@ export const translations = {
       new_button: '+ Nueva',
       updating: 'Actualizando…',
       confirm_delete: '¿Eliminar esta postulación?',
+      edit: 'Editar',
+      delete: 'Eliminar',
     },
     kanban: {
       edit: 'Editar',

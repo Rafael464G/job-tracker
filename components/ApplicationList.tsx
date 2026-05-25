@@ -264,14 +264,14 @@ export default function ApplicationList({ applications }: { applications: Applic
                   onClick={() => setEditing(app)}
                   className="rounded-lg px-2.5 py-1.5 text-xs font-medium text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800"
                 >
-                  Editar
+                  {t.list.edit}
                 </button>
                 <button
                   onClick={() => handleDelete(app.id)}
                   disabled={deletingId === app.id}
                   className="rounded-lg px-2.5 py-1.5 text-xs font-medium text-red-500 hover:bg-red-50 disabled:opacity-40 dark:hover:bg-red-950/30"
                 >
-                  {deletingId === app.id ? '…' : 'Eliminar'}
+                  {deletingId === app.id ? '…' : t.list.delete}
                 </button>
               </div>
             </motion.div>
