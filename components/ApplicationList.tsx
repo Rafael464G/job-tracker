@@ -236,6 +236,18 @@ export default function ApplicationList({ applications }: { applications: Applic
                 <p className="mt-0.5 text-sm text-zinc-500">{app.position}</p>
                 <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-zinc-400">
                   <span>{formatDate(app.applied_at)}</span>
+                  {app.follow_up_at && (() => {
+                    const today = new Date().toISOString().split('T')[0]
+                    const isOverdue = app.follow_up_at < today
+                    const isToday = app.follow_up_at === today
+                    return (
+                      <span className={`flex items-center gap-1 font-medium ${
+                        isOverdue ? 'text-red-500' : isToday ? 'text-amber-500' : 'text-zinc-400'
+                      }`}>
+                        🔔 {isOverdue ? 'Vencido' : isToday ? 'Seguir hoy' : `Seguir ${formatDate(app.follow_up_at)}`}
+                      </span>
+                    )
+                  })()}
                   {app.url && (
                     <a href={app.url} target="_blank" rel="noopener noreferrer"
                       className="text-indigo-500 hover:underline">

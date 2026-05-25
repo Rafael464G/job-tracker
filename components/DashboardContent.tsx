@@ -1,18 +1,31 @@
 "use client"
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { Application } from '@/types/application'
 import StatsBar from './StatsBar'
 import ActivityChart from './ActivityChart'
 import ApplicationList from './ApplicationList'
 import KanbanBoard from './KanbanBoard'
+import FollowUpAlert from './FollowUpAlert'
+import ApplicationForm from './ApplicationForm'
 
 export default function DashboardContent({ applications }: { applications: Application[] }) {
+  const router = useRouter()
   const [view, setView] = useState<'list' | 'kanban'>('list')
+  const [alertEditing, setAlertEditing] = useState<Application | null | undefined>(undefined)
 
   return (
     <div className="space-y-6">
+      {alertEditing !== undefined && (
+        <ApplicationForm
+          application={alertEditing}
+          onClose={() => { setAlertEditing(undefined); router.refresh() }}
+        />
+      )}
+
       <StatsBar applications={applications} />
+      <FollowUpAlert applications={applications} onEdit={setAlertEditing} />
       <ActivityChart applications={applications} />
 
       <div className="flex items-center justify-between">

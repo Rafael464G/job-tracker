@@ -9,6 +9,7 @@ export interface Application {
   status: Status
   url: string | null
   notes: string | null
+  follow_up_at: string | null
   created_at: string
   updated_at: string
 }

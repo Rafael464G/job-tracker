@@ -7,6 +7,7 @@ export const applicationSchema = z.object({
   status: z.enum(['applied', 'interview', 'rejected', 'offer']),
   url: z.string().url('URL inválida').or(z.literal('')).optional(),
   notes: z.string().max(1000).optional(),
+  follow_up_at: z.string().optional(),
 })
 
 export type ApplicationInput = z.infer<typeof applicationSchema>

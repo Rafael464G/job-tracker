@@ -21,6 +21,7 @@ const empty = {
   status: 'applied' as Status,
   url: '',
   notes: '',
+  follow_up_at: '',
 }
 
 export default function ApplicationForm({ application, onClose }: Props) {
@@ -38,6 +39,7 @@ export default function ApplicationForm({ application, onClose }: Props) {
         status: application.status,
         url: application.url ?? '',
         notes: application.notes ?? '',
+        follow_up_at: application.follow_up_at ?? '',
       })
     } else {
       setForm(empty)
@@ -81,6 +83,7 @@ export default function ApplicationForm({ application, onClose }: Props) {
       status: form.status,
       url: form.url.trim() || null,
       notes: form.notes.trim() || null,
+      follow_up_at: form.follow_up_at || null,
     }
 
     const { error } = application
@@ -205,6 +208,19 @@ export default function ApplicationForm({ application, onClose }: Props) {
                 placeholder="Contacto, siguiente paso, impresiones..."
                 className="field resize-none"
               />
+            </div>
+
+            <div>
+              <label className="mb-1.5 block text-sm font-medium">
+                Fecha de seguimiento <span className="text-zinc-400">(opcional)</span>
+              </label>
+              <input
+                type="date"
+                value={form.follow_up_at}
+                onChange={(e) => set('follow_up_at', e.target.value)}
+                className="field"
+              />
+              <p className="mt-1 text-xs text-zinc-400">Te avisamos en el dashboard cuando toque hacer seguimiento</p>
             </div>
 
             <div className="flex justify-end gap-3 pt-1">
