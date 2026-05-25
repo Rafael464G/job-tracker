@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { useRouter } from 'next/navigation'
 import { Application, Status, STATUS_LABELS } from '@/types/application'
 
 const STATUSES: Status[] = ['applied', 'interview', 'rejected', 'offer']
@@ -22,7 +21,6 @@ const empty = {
 }
 
 export default function ApplicationForm({ application, onClose }: Props) {
-  const router = useRouter()
   const [form, setForm] = useState(empty)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -74,13 +72,15 @@ export default function ApplicationForm({ application, onClose }: Props) {
       return
     }
 
-    router.refresh()
     onClose()
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div className="w-full max-w-lg rounded-2xl bg-white shadow-xl dark:bg-zinc-900">
+    <div
+      className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/50 p-4 sm:items-center"
+      onClick={(e) => { if (e.target === e.currentTarget) onClose() }}
+    >
+      <div className="my-auto w-full max-w-lg rounded-2xl bg-white shadow-xl dark:bg-zinc-900">
         <div className="flex items-center justify-between border-b border-zinc-200 px-6 py-4 dark:border-zinc-800">
           <h2 className="font-semibold">
             {application ? 'Editar postulación' : 'Nueva postulación'}

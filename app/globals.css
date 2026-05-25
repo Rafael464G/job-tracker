@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* Class-based dark mode for Tailwind v4 */
+@custom-variant dark (&:is(.dark, .dark *));
+
 @layer components {
   .field {
     @apply w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm outline-none transition

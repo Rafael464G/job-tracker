@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from 'react'
+import { useState, useTransition } from 'react'
 import { Application, Status, STATUS_LABELS, STATUS_COLORS } from '@/types/application'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
@@ -14,35 +14,46 @@ const FILTERS = [
   { label: 'Rechazado', value: 'rejected' },
 ]
 
+function formatDate(dateStr: string) {
+  const [y, m, d] = dateStr.split('-').map(Number)
+  return new Date(y, m - 1, d).toLocaleDateString('es-ES', {
+    day: '2-digit', month: 'short', year: 'numeric',
+  })
+}
+
 export default function ApplicationList({ applications }: { applications: Application[] }) {
   const router = useRouter()
+  const [isPending, startTransition] = useTransition()
   const [filter, setFilter] = useState<'all' | Status>('all')
   const [editing, setEditing] = useState<Application | null | undefined>(undefined)
   const [deletingId, setDeletingId] = useState<string | null>(null)
 
   const visible = filter === 'all' ? applications : applications.filter((a) => a.status === filter)
 
+  function refresh() {
+    startTransition(() => { router.refresh() })
+  }
+
   async function handleDelete(id: string) {
     if (!confirm('¿Eliminar esta postulación?')) return
     setDeletingId(id)
     const supabase = createClient()
     await supabase.from('applications').delete().eq('id', id)
-    router.refresh()
     setDeletingId(null)
+    refresh()
   }
 
   return (
     <>
-      {/* Form modal */}
       {editing !== undefined && (
         <ApplicationForm
           application={editing}
-          onClose={() => setEditing(undefined)}
+          onClose={() => { setEditing(undefined); refresh() }}
         />
       )}
 
       {/* Toolbar */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-wrap gap-2">
           {FILTERS.map((f) => (
             <button
@@ -66,18 +77,23 @@ export default function ApplicationList({ applications }: { applications: Applic
 
         <button
           onClick={() => setEditing(null)}
-          className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700"
+          className="shrink-0 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700"
         >
           + Nueva postulación
         </button>
       </div>
 
-      {/* List */}
+      {/* Refresh indicator */}
+      {isPending && (
+        <p className="text-center text-xs text-zinc-400 animate-pulse">Actualizando…</p>
+      )}
+
+      {/* Empty state */}
       {visible.length === 0 ? (
-        <div className="mt-8 text-center text-zinc-400">
+        <div className="mt-10 text-center text-zinc-400">
           {filter === 'all' ? (
             <>
-              <p className="text-lg">Sin postulaciones aún</p>
+              <p className="text-lg font-medium">Sin postulaciones aún</p>
               <p className="mt-1 text-sm">Agrega tu primera con el botón de arriba</p>
             </>
           ) : (
@@ -85,11 +101,11 @@ export default function ApplicationList({ applications }: { applications: Applic
           )}
         </div>
       ) : (
-        <div className="mt-2 space-y-3">
+        <div className="space-y-3">
           {visible.map((app) => (
             <div
               key={app.id}
-              className="flex items-start justify-between gap-4 rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900"
+              className="flex items-start justify-between gap-4 rounded-xl border border-zinc-200 bg-white p-4 transition hover:border-zinc-300 dark:border-zinc-800 dark:bg-zinc-900 dark:hover:border-zinc-700"
             >
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-2">
@@ -100,24 +116,20 @@ export default function ApplicationList({ applications }: { applications: Applic
                 </div>
                 <p className="mt-0.5 text-sm text-zinc-500">{app.position}</p>
                 <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-zinc-400">
-                  <span>{new Date(app.applied_at).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
+                  <span>{formatDate(app.applied_at)}</span>
                   {app.url && (
-                    <a
-                      href={app.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-indigo-500 hover:underline"
-                    >
+                    <a href={app.url} target="_blank" rel="noopener noreferrer"
+                      className="text-indigo-500 hover:underline">
                       Ver oferta ↗
                     </a>
                   )}
                 </div>
                 {app.notes && (
-                  <p className="mt-2 text-sm text-zinc-500 line-clamp-2">{app.notes}</p>
+                  <p className="mt-2 line-clamp-2 text-sm text-zinc-500">{app.notes}</p>
                 )}
               </div>
 
-              <div className="flex shrink-0 gap-2">
+              <div className="flex shrink-0 flex-col gap-1 sm:flex-row">
                 <button
                   onClick={() => setEditing(app)}
                   className="rounded-lg px-2.5 py-1.5 text-xs font-medium text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800"
