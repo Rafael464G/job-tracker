@@ -13,7 +13,7 @@ import {
   useDraggable,
 } from '@dnd-kit/core'
 import { CSS } from '@dnd-kit/utilities'
-import { Application, Status, STATUS_LABELS, STATUS_COLORS } from '@/types/application'
+import { Application, Status, STATUS_LABELS, STATUS_COLORS, STATUS_BG } from '@/types/application'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import ApplicationForm from './ApplicationForm'
@@ -32,7 +32,12 @@ function formatDate(dateStr: string) {
   return new Date(y, m - 1, d).toLocaleDateString('es-ES', { day: '2-digit', month: 'short' })
 }
 
-function KanbanCard({ app, onEdit }: { app: Application; onEdit: () => void }) {
+function KanbanCard({ app, onEdit, onDelete, deleting }: {
+  app: Application
+  onEdit: () => void
+  onDelete: () => void
+  deleting: boolean
+}) {
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({ id: app.id })
 
   return (
@@ -45,31 +50,54 @@ function KanbanCard({ app, onEdit }: { app: Application; onEdit: () => void }) {
         isDragging ? 'opacity-40' : ''
       }`}
     >
-      <p className="font-medium text-sm leading-tight">{app.company}</p>
-      <p className="mt-0.5 text-xs text-zinc-500 leading-tight">{app.position}</p>
+      <div className="flex items-start gap-2">
+        <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-xs font-bold ${STATUS_BG[app.status]}`}>
+          {app.company.slice(0, 2).toUpperCase()}
+        </span>
+        <div className="min-w-0">
+          <p className="font-medium text-sm leading-tight truncate">{app.company}</p>
+          <p className="mt-0.5 text-xs text-zinc-500 leading-tight truncate">{app.position}</p>
+        </div>
+      </div>
       <div className="mt-2 flex items-center justify-between">
         <span className="text-xs text-zinc-400">{formatDate(app.applied_at)}</span>
-        <button
-          onPointerDown={(e) => e.stopPropagation()}
-          onClick={(e) => { e.stopPropagation(); onEdit() }}
-          className="rounded px-1.5 py-0.5 text-xs text-zinc-400 hover:bg-zinc-100 hover:text-zinc-600 dark:hover:bg-zinc-700"
-        >
-          Editar
-        </button>
+        <div className="flex gap-1">
+          <button
+            onPointerDown={(e) => e.stopPropagation()}
+            onClick={(e) => { e.stopPropagation(); onEdit() }}
+            className="rounded px-1.5 py-0.5 text-xs text-zinc-400 hover:bg-zinc-100 hover:text-zinc-600 dark:hover:bg-zinc-700"
+          >
+            Editar
+          </button>
+          <button
+            onPointerDown={(e) => e.stopPropagation()}
+            onClick={(e) => { e.stopPropagation(); onDelete() }}
+            disabled={deleting}
+            className="rounded px-1.5 py-0.5 text-xs text-red-400 hover:bg-red-50 disabled:opacity-40 dark:hover:bg-red-950/30"
+          >
+            {deleting ? '…' : '✕'}
+          </button>
+        </div>
       </div>
     </div>
   )
 }
 
-function KanbanColumn({ status, apps, onEdit }: { status: Status; apps: Application[]; onEdit: (app: Application) => void }) {
+function KanbanColumn({ status, apps, onEdit, onDelete, deletingId }: {
+  status: Status
+  apps: Application[]
+  onEdit: (app: Application) => void
+  onDelete: (id: string) => void
+  deletingId: string | null
+}) {
   const { setNodeRef, isOver } = useDroppable({ id: status })
 
   return (
     <div className="flex min-w-0 flex-1 flex-col">
-      <div className={`mb-3 rounded-t-lg border-t-2 pt-1 ${COLUMN_COLORS[status]}`}>
-        <div className="flex items-center justify-between px-1">
+      <div className={`mb-3 rounded-t-lg border-t-2 pt-2 ${COLUMN_COLORS[status]}`}>
+        <div className="flex items-center justify-between px-1 pb-1">
           <span className="text-sm font-semibold">{STATUS_LABELS[status]}</span>
-          <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_COLORS[status]}`}>
+          <span className={`rounded-full px-2 py-0.5 text-xs font-bold ${STATUS_COLORS[status]}`}>
             {apps.length}
           </span>
         </div>
@@ -82,7 +110,13 @@ function KanbanColumn({ status, apps, onEdit }: { status: Status; apps: Applicat
         }`}
       >
         {apps.map((app) => (
-          <KanbanCard key={app.id} app={app} onEdit={() => onEdit(app)} />
+          <KanbanCard
+            key={app.id}
+            app={app}
+            onEdit={() => onEdit(app)}
+            onDelete={() => onDelete(app.id)}
+            deleting={deletingId === app.id}
+          />
         ))}
       </div>
     </div>
@@ -95,11 +129,22 @@ export default function KanbanBoard({ applications }: { applications: Applicatio
   const [apps, setApps] = useState(applications)
   const [draggingId, setDraggingId] = useState<string | null>(null)
   const [editing, setEditing] = useState<Application | null | undefined>(undefined)
+  const [deletingId, setDeletingId] = useState<string | null>(null)
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }))
 
   function refresh() {
     startTransition(() => { router.refresh() })
+  }
+
+  async function handleDelete(id: string) {
+    if (!confirm('¿Eliminar esta postulación?')) return
+    setDeletingId(id)
+    const supabase = createClient()
+    await supabase.from('applications').delete().eq('id', id)
+    setApps((prev) => prev.filter((a) => a.id !== id))
+    setDeletingId(null)
+    refresh()
   }
 
   function handleDragStart(e: DragStartEvent) {
@@ -157,6 +202,8 @@ export default function KanbanBoard({ applications }: { applications: Applicatio
               status={col}
               apps={grouped[col]}
               onEdit={setEditing}
+              onDelete={handleDelete}
+              deletingId={deletingId}
             />
           ))}
         </div>

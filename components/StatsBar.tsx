@@ -1,6 +1,20 @@
-import { Application, Status, STATUS_LABELS, STATUS_COLORS } from '@/types/application'
+import { Application, Status, STATUS_LABELS, STATUS_COLORS, STATUS_BG } from '@/types/application'
 
 const STATUSES: Status[] = ['applied', 'interview', 'offer', 'rejected']
+
+const STAT_ICONS: Record<Status, string> = {
+  applied: '📤',
+  interview: '💬',
+  offer: '🎉',
+  rejected: '✕',
+}
+
+const STAT_BORDER: Record<Status, string> = {
+  applied: 'border-t-blue-400',
+  interview: 'border-t-amber-400',
+  offer: 'border-t-green-400',
+  rejected: 'border-t-red-400',
+}
 
 export default function StatsBar({ applications }: { applications: Application[] }) {
   const counts = STATUSES.reduce<Record<Status, number>>(
@@ -13,10 +27,15 @@ export default function StatsBar({ applications }: { applications: Application[]
       {STATUSES.map((status) => (
         <div
           key={status}
-          className="rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900"
+          className={`rounded-xl border border-zinc-200 border-t-2 bg-white p-4 dark:border-zinc-800 dark:border-t-2 dark:bg-zinc-900 ${STAT_BORDER[status]}`}
         >
-          <p className="text-2xl font-bold">{counts[status]}</p>
-          <span className={`mt-1 inline-block rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_COLORS[status]}`}>
+          <div className="flex items-center justify-between">
+            <p className="text-3xl font-bold tabular-nums">{counts[status]}</p>
+            <span className={`flex h-8 w-8 items-center justify-center rounded-lg text-sm ${STATUS_BG[status]}`}>
+              {STAT_ICONS[status]}
+            </span>
+          </div>
+          <span className={`mt-2 inline-block rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_COLORS[status]}`}>
             {STATUS_LABELS[status]}
           </span>
         </div>

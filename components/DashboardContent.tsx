@@ -17,7 +17,7 @@ export default function DashboardContent({ applications }: { applications: Appli
 
       <div className="flex items-center justify-between">
         <p className="text-sm text-zinc-400">
-          {applications.length} postulación{applications.length !== 1 ? 'es' : ''}
+          {applications.length} {applications.length !== 1 ? 'postulaciones' : 'postulación'}
         </p>
         <div className="flex rounded-lg border border-zinc-200 dark:border-zinc-700 overflow-hidden">
           <button

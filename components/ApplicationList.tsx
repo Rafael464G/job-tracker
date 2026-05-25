@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useTransition, useMemo } from 'react'
-import { Application, Status, STATUS_LABELS, STATUS_COLORS } from '@/types/application'
+import { Application, Status, STATUS_LABELS, STATUS_COLORS, STATUS_BORDER, STATUS_BG } from '@/types/application'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import ApplicationForm from './ApplicationForm'
@@ -192,8 +192,12 @@ export default function ApplicationList({ applications }: { applications: Applic
           {visible.map((app) => (
             <div
               key={app.id}
-              className="flex items-start justify-between gap-4 rounded-xl border border-zinc-200 bg-white p-4 transition hover:border-zinc-300 dark:border-zinc-800 dark:bg-zinc-900 dark:hover:border-zinc-700"
+              className={`flex items-start justify-between gap-4 rounded-xl border border-l-4 border-zinc-200 bg-white p-4 transition hover:border-zinc-300 hover:shadow-sm dark:border-zinc-800 dark:bg-zinc-900 dark:hover:border-zinc-700 ${STATUS_BORDER[app.status]}`}
             >
+              <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-sm font-bold ${STATUS_BG[app.status]}`}>
+                {app.company.slice(0, 2).toUpperCase()}
+              </div>
+
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-2">
                   <p className="font-semibold">{app.company}</p>
