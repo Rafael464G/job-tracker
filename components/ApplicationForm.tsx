@@ -52,6 +52,9 @@ export default function ApplicationForm({ application, onClose }: Props) {
     setLoading(true)
 
     const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) { setError('Sesión expirada. Recarga la página.'); setLoading(false); return }
+
     const payload = {
       company: form.company.trim(),
       position: form.position.trim(),
@@ -63,7 +66,7 @@ export default function ApplicationForm({ application, onClose }: Props) {
 
     const { error } = application
       ? await supabase.from('applications').update(payload).eq('id', application.id)
-      : await supabase.from('applications').insert(payload)
+      : await supabase.from('applications').insert({ ...payload, user_id: user.id })
 
     if (error) {
       setError(error.message)
