@@ -1,10 +1,12 @@
 "use client"
 
 import { useState, useTransition, useMemo } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import { Application, Status, STATUS_LABELS, STATUS_COLORS, STATUS_BORDER, STATUS_BG } from '@/types/application'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import ApplicationForm from './ApplicationForm'
+import { useToast } from './Toast'
 
 const FILTERS = [
   { label: 'Todas', value: 'all' },
@@ -28,6 +30,17 @@ function formatDate(dateStr: string) {
   })
 }
 
+function exportJSON(applications: Application[]) {
+  const data = applications.map(({ id: _id, user_id: _uid, created_at: _c, updated_at: _u, ...rest }) => rest)
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = `postulaciones-${new Date().toISOString().split('T')[0]}.json`
+  a.click()
+  URL.revokeObjectURL(url)
+}
+
 function exportCSV(applications: Application[]) {
   const headers = ['Empresa', 'Puesto', 'Fecha', 'Estado', 'Enlace', 'Notas']
   const rows = applications.map((a) => [
@@ -49,6 +62,7 @@ function exportCSV(applications: Application[]) {
 }
 
 export default function ApplicationList({ applications }: { applications: Application[] }) {
+  const { toast } = useToast()
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const [filter, setFilter] = useState<'all' | Status>('all')
@@ -84,8 +98,10 @@ export default function ApplicationList({ applications }: { applications: Applic
     if (!confirm('¿Eliminar esta postulación?')) return
     setDeletingId(id)
     const supabase = createClient()
-    await supabase.from('applications').delete().eq('id', id)
+    const { error } = await supabase.from('applications').delete().eq('id', id)
     setDeletingId(null)
+    if (error) { toast('Error al eliminar', 'error'); return }
+    toast('Postulación eliminada')
     refresh()
   }
 
@@ -152,6 +168,13 @@ export default function ApplicationList({ applications }: { applications: Applic
         >
           ↓ CSV
         </button>
+        <button
+          onClick={() => exportJSON(applications)}
+          title="Exportar JSON"
+          className="shrink-0 rounded-lg border border-zinc-200 px-3 py-2 text-sm text-zinc-600 transition hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-800"
+        >
+          ↓ JSON
+        </button>
 
         <button
           onClick={() => setEditing(null)}
@@ -188,10 +211,15 @@ export default function ApplicationList({ applications }: { applications: Applic
           )}
         </div>
       ) : (
+        <AnimatePresence initial={false}>
         <div className="space-y-3">
-          {visible.map((app) => (
-            <div
+          {visible.map((app, i) => (
+            <motion.div
               key={app.id}
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              transition={{ duration: 0.18, delay: i * 0.03 }}
               className={`flex items-start justify-between gap-4 rounded-xl border border-l-4 border-zinc-200 bg-white p-4 transition hover:border-zinc-300 hover:shadow-sm dark:border-zinc-800 dark:bg-zinc-900 dark:hover:border-zinc-700 ${STATUS_BORDER[app.status]}`}
             >
               <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-sm font-bold ${STATUS_BG[app.status]}`}>
@@ -235,9 +263,10 @@ export default function ApplicationList({ applications }: { applications: Applic
                   {deletingId === app.id ? '…' : 'Eliminar'}
                 </button>
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
+        </AnimatePresence>
       )}
     </>
   )

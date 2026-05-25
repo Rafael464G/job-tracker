@@ -93,7 +93,7 @@ function KanbanColumn({ status, apps, onEdit, onDelete, deletingId }: {
   const { setNodeRef, isOver } = useDroppable({ id: status })
 
   return (
-    <div className="flex min-w-0 flex-1 flex-col">
+    <div className="flex min-w-[260px] flex-1 flex-col sm:min-w-0">
       <div className={`mb-3 rounded-t-lg border-t-2 pt-2 ${COLUMN_COLORS[status]}`}>
         <div className="flex items-center justify-between px-1 pb-1">
           <span className="text-sm font-semibold">{STATUS_LABELS[status]}</span>
@@ -195,7 +195,7 @@ export default function KanbanBoard({ applications }: { applications: Applicatio
       )}
 
       <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-        <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+        <div className="flex gap-4 overflow-x-auto pb-4 sm:grid sm:grid-cols-2 sm:overflow-visible lg:grid-cols-4">
           {COLUMNS.map((col) => (
             <KanbanColumn
               key={col}
