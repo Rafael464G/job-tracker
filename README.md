@@ -2,7 +2,7 @@
 
 Track your job applications in one place — built as a real portfolio project during an active job search.
 
-**[Live demo →](https://job-tracker-rafael.vercel.app)**
+**[Live demo →](https://job-tracker-iota-ten.vercel.app)**
 
 ## What it does
 
