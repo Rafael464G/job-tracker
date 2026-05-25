@@ -1,36 +1,80 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Job Tracker
+
+Track your job applications in one place — built as a real portfolio project during an active job search.
+
+**[Live demo →](https://job-tracker-rafael.vercel.app)**
+
+## What it does
+
+- Add, edit, and delete job applications with company, position, date, status, link, and notes
+- Filter by status: Postulado / Entrevista / Oferta / Rechazado
+- Dashboard with counts per status at a glance
+- Each user sees only their own data (Row Level Security)
+- Dark mode with system preference detection and manual toggle
+
+## Tech Stack
+
+- **Next.js 15** (App Router) + **TypeScript**
+- **Tailwind CSS v4**
+- **Supabase** — Postgres database, Row Level Security, Auth (email/password)
+- **Vercel** — deployment
 
 ## Getting Started
 
-First, run the development server:
+```bash
+git clone https://github.com/Rafael464G/job-tracker.git
+cd job-tracker
+npm install
+```
+
+Create `.env.local` from the example:
+
+```
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+```
+
+Run the SQL below in your Supabase SQL Editor, then:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Database Schema
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```sql
+create table public.applications (
+  id          uuid primary key default gen_random_uuid(),
+  user_id     uuid not null references auth.users(id) on delete cascade,
+  company     text not null,
+  position    text not null,
+  applied_at  date not null default current_date,
+  status      text not null default 'applied'
+                check (status in ('applied', 'interview', 'rejected', 'offer')),
+  url         text,
+  notes       text,
+  created_at  timestamptz not null default now(),
+  updated_at  timestamptz not null default now()
+);
 
-## Learn More
+alter table public.applications enable row level security;
 
-To learn more about Next.js, take a look at the following resources:
+create policy "Users can select own applications" on public.applications
+  for select using (auth.uid() = user_id);
+create policy "Users can insert own applications" on public.applications
+  for insert with check (auth.uid() = user_id);
+create policy "Users can update own applications" on public.applications
+  for update using (auth.uid() = user_id);
+create policy "Users can delete own applications" on public.applications
+  for delete using (auth.uid() = user_id);
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Author
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+**Rafael González** — [GitHub](https://github.com/Rafael464G) · [LinkedIn](https://www.linkedin.com/in/rafael-gonzalez-86a037370/) · [Workana](https://www.workana.com/freelancer/1de0dbb7abee74488ea4a8210811c022)
 
-## Deploy on Vercel
+## License
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+MIT
