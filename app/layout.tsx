@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist } from "next/font/google";
 import "./globals.css";
 import { ToastProvider } from "@/components/Toast";
+import { LanguageProvider } from "@/components/LanguageProvider";
 
 const geist = Geist({ subsets: ["latin"], variable: "--font-geist" });
 
@@ -24,7 +25,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         `}} />
       </head>
       <body className="h-full bg-zinc-50 font-[family-name:var(--font-geist)] text-zinc-900 antialiased dark:bg-zinc-950 dark:text-zinc-100">
-        <ToastProvider>{children}</ToastProvider>
+        <LanguageProvider><ToastProvider>{children}</ToastProvider></LanguageProvider>
       </body>
     </html>
   );

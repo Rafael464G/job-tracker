@@ -7,6 +7,7 @@ import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import ApplicationForm from './ApplicationForm'
 import { useToast } from './Toast'
+import { useLanguage } from './LanguageProvider'
 
 const FILTERS = [
   { label: 'Todas', value: 'all' },
@@ -63,6 +64,7 @@ function exportCSV(applications: Application[]) {
 
 export default function ApplicationList({ applications }: { applications: Application[] }) {
   const { toast } = useToast()
+  const { t } = useLanguage()
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const [filter, setFilter] = useState<'all' | Status>('all')
@@ -95,13 +97,13 @@ export default function ApplicationList({ applications }: { applications: Applic
   }
 
   async function handleDelete(id: string) {
-    if (!confirm('¿Eliminar esta postulación?')) return
+    if (!confirm(t.list.confirm_delete)) return
     setDeletingId(id)
     const supabase = createClient()
     const { error } = await supabase.from('applications').delete().eq('id', id)
     setDeletingId(null)
-    if (error) { toast('Error al eliminar', 'error'); return }
-    toast('Postulación eliminada')
+    if (error) { toast(t.toast.delete_error, 'error'); return }
+    toast(t.toast.deleted)
     refresh()
   }
 
@@ -126,7 +128,7 @@ export default function ApplicationList({ applications }: { applications: Applic
                 : 'bg-zinc-100 text-zinc-600 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-700'
             }`}
           >
-            {f.label}
+            {f.value === 'all' ? t.filters.all : t.status[f.value as Status]}
             <span className="ml-1.5 text-xs opacity-70">
               {f.value === 'all'
                 ? applications.length
@@ -146,7 +148,7 @@ export default function ApplicationList({ applications }: { applications: Applic
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Buscar empresa o puesto…"
+            placeholder={t.list.search_placeholder}
             className="w-full rounded-lg border border-zinc-200 bg-white py-2 pl-9 pr-3 text-sm outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
           />
         </div>
@@ -157,7 +159,7 @@ export default function ApplicationList({ applications }: { applications: Applic
           className="rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm outline-none transition focus:border-indigo-500 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
         >
           {SORT_OPTIONS.map((o) => (
-            <option key={o.value} value={o.value}>{o.label}</option>
+            <option key={o.value} value={o.value}>{t.sort[o.value as keyof typeof t.sort]}</option>
           ))}
         </select>
 
@@ -166,48 +168,45 @@ export default function ApplicationList({ applications }: { applications: Applic
           title="Exportar CSV"
           className="shrink-0 rounded-lg border border-zinc-200 px-3 py-2 text-sm text-zinc-600 transition hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-800"
         >
-          ↓ CSV
+          {t.list.export_csv}
         </button>
         <button
           onClick={() => exportJSON(applications)}
-          title="Exportar JSON"
+          title="Export JSON"
           className="shrink-0 rounded-lg border border-zinc-200 px-3 py-2 text-sm text-zinc-600 transition hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-800"
         >
-          ↓ JSON
+          {t.list.export_json}
         </button>
 
         <button
           onClick={() => setEditing(null)}
           className="shrink-0 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700"
         >
-          + Nueva
+          {t.list.new_button}
         </button>
       </div>
 
       {/* Refresh indicator */}
       {isPending && (
-        <p className="text-center text-xs text-zinc-400 animate-pulse">Actualizando…</p>
+        <p className="text-center text-xs text-zinc-400 animate-pulse">{t.list.updating}</p>
       )}
 
-      {/* Results count */}
       {search && (
-        <p className="text-xs text-zinc-400">
-          {visible.length} resultado{visible.length !== 1 ? 's' : ''} para &ldquo;{search}&rdquo;
-        </p>
+        <p className="text-xs text-zinc-400">{t.list.results(visible.length, search)}</p>
       )}
 
       {/* Empty state */}
       {visible.length === 0 ? (
         <div className="mt-10 text-center text-zinc-400">
           {search ? (
-            <p>Sin resultados para &ldquo;{search}&rdquo;</p>
+            <p>{t.list.no_results(search)}</p>
           ) : filter === 'all' ? (
             <>
-              <p className="text-lg font-medium">Sin postulaciones aún</p>
-              <p className="mt-1 text-sm">Agrega tu primera con el botón de arriba</p>
+              <p className="text-lg font-medium">{t.list.empty_title}</p>
+              <p className="mt-1 text-sm">{t.list.empty_subtitle}</p>
             </>
           ) : (
-            <p>Sin postulaciones en estado &ldquo;{STATUS_LABELS[filter as Status]}&rdquo;</p>
+            <p>{t.list.empty_filter(t.status[filter as Status])}</p>
           )}
         </div>
       ) : (
@@ -230,7 +229,7 @@ export default function ApplicationList({ applications }: { applications: Applic
                 <div className="flex flex-wrap items-center gap-2">
                   <p className="font-semibold">{app.company}</p>
                   <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_COLORS[app.status]}`}>
-                    {STATUS_LABELS[app.status]}
+                    {t.status[app.status]}
                   </span>
                 </div>
                 <p className="mt-0.5 text-sm text-zinc-500">{app.position}</p>
@@ -244,7 +243,7 @@ export default function ApplicationList({ applications }: { applications: Applic
                       <span className={`flex items-center gap-1 font-medium ${
                         isOverdue ? 'text-red-500' : isToday ? 'text-amber-500' : 'text-zinc-400'
                       }`}>
-                        🔔 {isOverdue ? 'Vencido' : isToday ? 'Seguir hoy' : `Seguir ${formatDate(app.follow_up_at)}`}
+                        🔔 {isOverdue ? t.followup.badge_overdue : isToday ? t.followup.badge_today : t.followup.badge_upcoming(formatDate(app.follow_up_at))}
                       </span>
                     )
                   })()}

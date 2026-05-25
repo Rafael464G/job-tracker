@@ -13,10 +13,11 @@ import {
   useDraggable,
 } from '@dnd-kit/core'
 import { CSS } from '@dnd-kit/utilities'
-import { Application, Status, STATUS_LABELS, STATUS_COLORS, STATUS_BG } from '@/types/application'
+import { Application, Status, STATUS_COLORS, STATUS_BG } from '@/types/application'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import ApplicationForm from './ApplicationForm'
+import { useLanguage } from './LanguageProvider'
 
 const COLUMNS: Status[] = ['applied', 'interview', 'offer', 'rejected']
 
@@ -30,6 +31,36 @@ const COLUMN_COLORS: Record<Status, string> = {
 function formatDate(dateStr: string) {
   const [y, m, d] = dateStr.split('-').map(Number)
   return new Date(y, m - 1, d).toLocaleDateString('es-ES', { day: '2-digit', month: 'short' })
+}
+
+function KanbanColumnTitle({ status }: { status: Status }) {
+  const { t } = useLanguage()
+  return <span className="text-sm font-semibold">{t.status[status]}</span>
+}
+
+function KanbanCardButtons({ onEdit, onDelete, deleting }: {
+  onEdit: () => void; onDelete: () => void; deleting: boolean
+}) {
+  const { t } = useLanguage()
+  return (
+    <>
+      <button
+        onPointerDown={(e) => e.stopPropagation()}
+        onClick={(e) => { e.stopPropagation(); onEdit() }}
+        className="rounded px-1.5 py-0.5 text-xs text-zinc-400 hover:bg-zinc-100 hover:text-zinc-600 dark:hover:bg-zinc-700"
+      >
+        {t.kanban.edit}
+      </button>
+      <button
+        onPointerDown={(e) => e.stopPropagation()}
+        onClick={(e) => { e.stopPropagation(); onDelete() }}
+        disabled={deleting}
+        className="rounded px-1.5 py-0.5 text-xs text-red-400 hover:bg-red-50 disabled:opacity-40 dark:hover:bg-red-950/30"
+      >
+        {deleting ? '…' : t.kanban.delete}
+      </button>
+    </>
+  )
 }
 
 function KanbanCard({ app, onEdit, onDelete, deleting }: {
@@ -62,21 +93,7 @@ function KanbanCard({ app, onEdit, onDelete, deleting }: {
       <div className="mt-2 flex items-center justify-between">
         <span className="text-xs text-zinc-400">{formatDate(app.applied_at)}</span>
         <div className="flex gap-1">
-          <button
-            onPointerDown={(e) => e.stopPropagation()}
-            onClick={(e) => { e.stopPropagation(); onEdit() }}
-            className="rounded px-1.5 py-0.5 text-xs text-zinc-400 hover:bg-zinc-100 hover:text-zinc-600 dark:hover:bg-zinc-700"
-          >
-            Editar
-          </button>
-          <button
-            onPointerDown={(e) => e.stopPropagation()}
-            onClick={(e) => { e.stopPropagation(); onDelete() }}
-            disabled={deleting}
-            className="rounded px-1.5 py-0.5 text-xs text-red-400 hover:bg-red-50 disabled:opacity-40 dark:hover:bg-red-950/30"
-          >
-            {deleting ? '…' : '✕'}
-          </button>
+          <KanbanCardButtons onEdit={onEdit} onDelete={onDelete} deleting={deleting} />
         </div>
       </div>
     </div>
@@ -96,7 +113,7 @@ function KanbanColumn({ status, apps, onEdit, onDelete, deletingId }: {
     <div className="flex min-w-[260px] flex-1 flex-col sm:min-w-0">
       <div className={`mb-3 rounded-t-lg border-t-2 pt-2 ${COLUMN_COLORS[status]}`}>
         <div className="flex items-center justify-between px-1 pb-1">
-          <span className="text-sm font-semibold">{STATUS_LABELS[status]}</span>
+          <KanbanColumnTitle status={status} />
           <span className={`rounded-full px-2 py-0.5 text-xs font-bold ${STATUS_COLORS[status]}`}>
             {apps.length}
           </span>

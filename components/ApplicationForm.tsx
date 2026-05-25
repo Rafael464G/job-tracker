@@ -6,6 +6,7 @@ import { createClient } from '@/lib/supabase/client'
 import { Application, Status, STATUS_LABELS } from '@/types/application'
 import { applicationSchema } from '@/lib/validations'
 import { useToast } from './Toast'
+import { useLanguage } from './LanguageProvider'
 
 const STATUSES: Status[] = ['applied', 'interview', 'rejected', 'offer']
 
@@ -26,6 +27,7 @@ const empty = {
 
 export default function ApplicationForm({ application, onClose }: Props) {
   const { toast } = useToast()
+  const { t } = useLanguage()
   const [form, setForm] = useState(empty)
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [loading, setLoading] = useState(false)
@@ -71,7 +73,7 @@ export default function ApplicationForm({ application, onClose }: Props) {
     const supabase = createClient()
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) {
-      toast('Sesión expirada. Recarga la página.', 'error')
+      toast(t.form.session_expired, 'error')
       setLoading(false)
       return
     }
@@ -96,7 +98,7 @@ export default function ApplicationForm({ application, onClose }: Props) {
       return
     }
 
-    toast(application ? 'Postulación actualizada' : 'Postulación agregada')
+    toast(application ? t.toast.updated : t.toast.added)
     onClose()
   }
 
@@ -119,11 +121,11 @@ export default function ApplicationForm({ application, onClose }: Props) {
         >
           <div className="flex items-center justify-between border-b border-zinc-200 px-6 py-4 dark:border-zinc-800">
             <h2 className="font-semibold">
-              {application ? 'Editar postulación' : 'Nueva postulación'}
+              {application ? t.form.title_edit : t.form.title_new}
             </h2>
             <button
               onClick={onClose}
-              aria-label="Cerrar"
+              aria-label="Close"
               className="rounded-lg p-1 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-700 dark:hover:bg-zinc-800"
             >
               ✕
@@ -133,25 +135,25 @@ export default function ApplicationForm({ application, onClose }: Props) {
           <form onSubmit={handleSubmit} className="space-y-4 px-6 py-5">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="mb-1.5 block text-sm font-medium">Empresa</label>
+                <label className="mb-1.5 block text-sm font-medium">{t.form.company}</label>
                 <input
                   aria-required="true"
                   aria-invalid={!!errors.company}
                   value={form.company}
                   onChange={(e) => set('company', e.target.value)}
-                  placeholder="Ej. Stripe"
+                  placeholder={t.form.company_placeholder}
                   className="field"
                 />
                 {errors.company && <p className="mt-1 text-xs text-red-500">{errors.company}</p>}
               </div>
               <div>
-                <label className="mb-1.5 block text-sm font-medium">Puesto</label>
+                <label className="mb-1.5 block text-sm font-medium">{t.form.position}</label>
                 <input
                   aria-required="true"
                   aria-invalid={!!errors.position}
                   value={form.position}
                   onChange={(e) => set('position', e.target.value)}
-                  placeholder="Ej. Frontend Developer"
+                  placeholder={t.form.position_placeholder}
                   className="field"
                 />
                 {errors.position && <p className="mt-1 text-xs text-red-500">{errors.position}</p>}
@@ -160,7 +162,7 @@ export default function ApplicationForm({ application, onClose }: Props) {
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="mb-1.5 block text-sm font-medium">Fecha</label>
+                <label className="mb-1.5 block text-sm font-medium">{t.form.date}</label>
                 <input
                   type="date"
                   aria-required="true"
@@ -170,14 +172,14 @@ export default function ApplicationForm({ application, onClose }: Props) {
                 />
               </div>
               <div>
-                <label className="mb-1.5 block text-sm font-medium">Estado</label>
+                <label className="mb-1.5 block text-sm font-medium">{t.form.status}</label>
                 <select
                   value={form.status}
                   onChange={(e) => set('status', e.target.value as Status)}
                   className="field"
                 >
                   {STATUSES.map((s) => (
-                    <option key={s} value={s}>{STATUS_LABELS[s]}</option>
+                    <option key={s} value={s}>{t.status[s]}</option>
                   ))}
                 </select>
               </div>
@@ -185,13 +187,13 @@ export default function ApplicationForm({ application, onClose }: Props) {
 
             <div>
               <label className="mb-1.5 block text-sm font-medium">
-                Enlace a la oferta <span className="text-zinc-400">(opcional)</span>
+                {t.form.url} <span className="text-zinc-400">{t.form.url_optional}</span>
               </label>
               <input
                 type="url"
                 value={form.url}
                 onChange={(e) => set('url', e.target.value)}
-                placeholder="https://..."
+                placeholder={t.form.url_placeholder}
                 className="field"
               />
               {errors.url && <p className="mt-1 text-xs text-red-500">{errors.url}</p>}
@@ -199,20 +201,20 @@ export default function ApplicationForm({ application, onClose }: Props) {
 
             <div>
               <label className="mb-1.5 block text-sm font-medium">
-                Notas <span className="text-zinc-400">(opcional)</span>
+                {t.form.notes} <span className="text-zinc-400">{t.form.notes_optional}</span>
               </label>
               <textarea
                 rows={3}
                 value={form.notes}
                 onChange={(e) => set('notes', e.target.value)}
-                placeholder="Contacto, siguiente paso, impresiones..."
+                placeholder={t.form.notes_placeholder}
                 className="field resize-none"
               />
             </div>
 
             <div>
               <label className="mb-1.5 block text-sm font-medium">
-                Fecha de seguimiento <span className="text-zinc-400">(opcional)</span>
+                {t.form.follow_up} <span className="text-zinc-400">{t.form.follow_up_optional}</span>
               </label>
               <input
                 type="date"
@@ -220,7 +222,7 @@ export default function ApplicationForm({ application, onClose }: Props) {
                 onChange={(e) => set('follow_up_at', e.target.value)}
                 className="field"
               />
-              <p className="mt-1 text-xs text-zinc-400">Te avisamos en el dashboard cuando toque hacer seguimiento</p>
+              <p className="mt-1 text-xs text-zinc-400">{t.form.follow_up_hint}</p>
             </div>
 
             <div className="flex justify-end gap-3 pt-1">
@@ -229,14 +231,14 @@ export default function ApplicationForm({ application, onClose }: Props) {
                 onClick={onClose}
                 className="rounded-lg border border-zinc-200 px-4 py-2 text-sm hover:bg-zinc-50 dark:border-zinc-700 dark:hover:bg-zinc-800"
               >
-                Cancelar
+                {t.form.cancel}
               </button>
               <button
                 type="submit"
                 disabled={loading}
                 className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-60"
               >
-                {loading ? 'Guardando…' : application ? 'Guardar cambios' : 'Agregar'}
+                {loading ? t.form.saving : application ? t.form.save : t.form.add}
               </button>
             </div>
           </form>

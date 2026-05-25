@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import LogoutButton from '@/components/LogoutButton'
 import ThemeToggle from '@/components/ThemeToggle'
+import LanguageToggle from '@/components/LanguageToggle'
 import DashboardContent from '@/components/DashboardContent'
 import { Application } from '@/types/application'
 
@@ -24,6 +25,7 @@ export default async function DashboardPage() {
           <h1 className="font-semibold tracking-tight">Job Tracker</h1>
           <div className="flex items-center gap-2">
             <span className="hidden text-sm text-zinc-400 sm:block">{user.email}</span>
+            <LanguageToggle />
             <ThemeToggle />
             <LogoutButton />
           </div>

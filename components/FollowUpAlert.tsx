@@ -2,7 +2,8 @@
 
 import { useMemo, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Application, STATUS_LABELS, STATUS_COLORS } from '@/types/application'
+import { Application, STATUS_COLORS } from '@/types/application'
+import { useLanguage } from './LanguageProvider'
 
 function today() {
   return new Date().toISOString().split('T')[0]
@@ -21,6 +22,7 @@ export default function FollowUpAlert({ applications, onEdit }: {
   applications: Application[]
   onEdit: (app: Application) => void
 }) {
+  const { t } = useLanguage()
   const [dismissed, setDismissed] = useState<Set<string>>(new Set())
   const todayStr = today()
 
@@ -55,9 +57,7 @@ export default function FollowUpAlert({ applications, onEdit }: {
             <div className="mb-3 flex items-center gap-2">
               <span className="text-base">🔔</span>
               <p className="text-sm font-semibold text-amber-800 dark:text-amber-300">
-                {urgent.length === 1
-                  ? '1 postulación requiere seguimiento'
-                  : `${urgent.length} postulaciones requieren seguimiento`}
+                {urgent.length === 1 ? t.followup.alert_singular : t.followup.alert_plural(urgent.length)}
               </p>
             </div>
             <div className="space-y-2">
@@ -70,12 +70,12 @@ export default function FollowUpAlert({ applications, onEdit }: {
                   >
                     <div className="flex min-w-0 items-center gap-2">
                       <span className={`text-xs font-bold ${isOverdue ? 'text-red-500' : 'text-amber-600 dark:text-amber-400'}`}>
-                        {isOverdue ? `Vencido ${formatDate(app.follow_up_at!)}` : 'Hoy'}
+                        {isOverdue ? t.followup.overdue(formatDate(app.follow_up_at!)) : t.followup.today}
                       </span>
                       <span className="text-zinc-300 dark:text-zinc-600">·</span>
                       <p className="truncate text-sm font-medium">{app.company}</p>
                       <span className={`hidden rounded-full px-2 py-0.5 text-xs font-medium sm:inline ${STATUS_COLORS[app.status]}`}>
-                        {STATUS_LABELS[app.status]}
+                        {t.status[app.status]}
                       </span>
                     </div>
                     <div className="flex shrink-0 gap-1">
@@ -83,11 +83,11 @@ export default function FollowUpAlert({ applications, onEdit }: {
                         onClick={() => onEdit(app)}
                         className="rounded-lg px-2.5 py-1 text-xs font-medium text-amber-700 hover:bg-amber-100 dark:text-amber-400 dark:hover:bg-amber-900/40"
                       >
-                        Actualizar
+                        {t.followup.update}
                       </button>
                       <button
                         onClick={() => dismiss(app.id)}
-                        aria-label="Descartar"
+                        aria-label="Dismiss"
                         className="rounded-lg px-2 py-1 text-xs text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800"
                       >
                         ✕
@@ -105,11 +105,7 @@ export default function FollowUpAlert({ applications, onEdit }: {
             <div className="flex items-center gap-2">
               <span className="text-sm">📅</span>
               <p className="text-sm text-zinc-500 dark:text-zinc-400">
-                Próximo seguimiento:{' '}
-                <span className="font-medium text-zinc-700 dark:text-zinc-300">
-                  {upcoming[0].company}
-                </span>{' '}
-                el {formatDate(upcoming[0].follow_up_at!)}
+                {t.followup.upcoming(upcoming[0].company, formatDate(upcoming[0].follow_up_at!))}
               </p>
             </div>
           </div>

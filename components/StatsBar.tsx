@@ -1,4 +1,5 @@
-import { Application, Status, STATUS_LABELS, STATUS_COLORS, STATUS_BG } from '@/types/application'
+import { Application, Status, STATUS_COLORS, STATUS_BG } from '@/types/application'
+import { useLanguage } from './LanguageProvider'
 
 const STATUSES: Status[] = ['applied', 'interview', 'offer', 'rejected']
 
@@ -17,6 +18,7 @@ const STAT_BORDER: Record<Status, string> = {
 }
 
 export default function StatsBar({ applications }: { applications: Application[] }) {
+  const { t } = useLanguage()
   const counts = STATUSES.reduce<Record<Status, number>>(
     (acc, s) => ({ ...acc, [s]: applications.filter((a) => a.status === s).length }),
     { applied: 0, interview: 0, rejected: 0, offer: 0 }
@@ -36,7 +38,7 @@ export default function StatsBar({ applications }: { applications: Application[]
             </span>
           </div>
           <span className={`mt-2 inline-block rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_COLORS[status]}`}>
-            {STATUS_LABELS[status]}
+            {t.status[status]}
           </span>
         </div>
       ))}
