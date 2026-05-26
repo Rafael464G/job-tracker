@@ -7,14 +7,14 @@ import { useLanguage } from '@/components/LanguageProvider'
 import DemoButton from '@/components/DemoButton'
 
 const BULLETS_EN = [
-  { icon: '⭐', text: 'Star your dream roles so they stand out' },
-  { icon: '📅', text: 'Calendar view to manage follow-up dates' },
-  { icon: '💡', text: 'Insights that tell you when to act' },
+  { icon: '⭐', text: 'Star your dream roles so they always stand out' },
+  { icon: '📅', text: 'Calendar view to manage all your follow-up dates' },
+  { icon: '💡', text: 'Insights that tell you exactly when to act' },
 ]
 const BULLETS_ES = [
-  { icon: '⭐', text: 'Marca tus empleos soñados para destacarlos' },
-  { icon: '📅', text: 'Vista de calendario para gestionar seguimientos' },
-  { icon: '💡', text: 'Sugerencias que te dicen cuándo actuar' },
+  { icon: '⭐', text: 'Marca tus empleos soñados para destacarlos siempre' },
+  { icon: '📅', text: 'Vista de calendario para gestionar todos tus seguimientos' },
+  { icon: '💡', text: 'Sugerencias que te dicen exactamente cuándo actuar' },
 ]
 
 export default function SignupPage() {
@@ -26,6 +26,7 @@ export default function SignupPage() {
   const [sent, setSent] = useState(false)
 
   const bullets = locale === 'es' ? BULLETS_ES : BULLETS_EN
+  const isEs = locale === 'es'
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -43,17 +44,26 @@ export default function SignupPage() {
 
   if (sent) {
     return (
-      <div className="flex min-h-full flex-col items-center justify-center px-4">
+      <div className="flex min-h-screen flex-col items-center justify-center bg-zinc-950 px-4">
         <div className="w-full max-w-sm text-center">
-          <div className="mb-4 text-5xl">📬</div>
-          <h2 className="mb-2 text-xl font-bold">{locale === 'es' ? 'Revisa tu email' : 'Check your email'}</h2>
-          <p className="text-sm text-zinc-500 dark:text-zinc-400">
-            {t.auth.check_email.replace('su', 'tu')}{' '}
-            <strong className="text-zinc-900 dark:text-zinc-100">{email}</strong>
+          <div className="mb-5 flex justify-center">
+            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-indigo-600/20 text-4xl">
+              📬
+            </div>
+          </div>
+          <h2 className="mb-2 text-xl font-bold text-white">
+            {isEs ? 'Revisa tu email' : 'Check your email'}
+          </h2>
+          <p className="text-sm text-zinc-400">
+            {isEs
+              ? `Enviamos un enlace de confirmación a `
+              : `We sent a confirmation link to `}
+            <strong className="text-zinc-200">{email}</strong>
+            {isEs ? '. Haz clic en él para activar tu cuenta.' : '. Click it to activate your account.'}
           </p>
           <Link
             href="/login"
-            className="mt-6 inline-block text-sm font-medium text-indigo-600 hover:underline dark:text-indigo-400"
+            className="mt-8 inline-block text-sm font-medium text-indigo-400 hover:text-indigo-300 transition"
           >
             ← {t.auth.login_link}
           </Link>
@@ -63,53 +73,70 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="flex min-h-full">
-      {/* Left branding panel — desktop only */}
-      <div className="hidden lg:flex lg:w-[420px] lg:shrink-0 flex-col justify-between bg-indigo-600 p-12 text-white">
-        <Link href="/" className="text-sm font-medium text-indigo-200 hover:text-white transition">
-          ← Job Tracker
+    <div className="flex min-h-screen">
+
+      {/* ── Left branding panel ── */}
+      <div className="hidden lg:flex lg:w-1/2 flex-col justify-between bg-indigo-600 p-14 text-white relative overflow-hidden">
+        {/* Decorative circles */}
+        <div className="pointer-events-none absolute -top-24 -right-24 h-72 w-72 rounded-full bg-indigo-500/40" />
+        <div className="pointer-events-none absolute -bottom-16 -left-16 h-56 w-56 rounded-full bg-indigo-700/50" />
+
+        <Link href="/" className="relative z-10 flex items-center gap-2 text-indigo-200 hover:text-white transition text-sm font-medium">
+          <span>←</span>
+          <span>Job Tracker</span>
         </Link>
 
-        <div>
-          <h2 className="text-3xl font-bold leading-snug">
-            {locale === 'es' ? '¿Listo para organizar\ntu búsqueda?' : 'Ready to organize\nyour job search?'}
+        <div className="relative z-10">
+          <p className="mb-3 text-indigo-300 text-sm font-medium uppercase tracking-widest">
+            {isEs ? 'Empieza gratis hoy' : 'Start free today'}
+          </p>
+          <h2 className="text-4xl font-bold leading-tight">
+            {isEs ? '¿Listo para organizar\ntu búsqueda\nde empleo?' : 'Ready to organize\nyour job\nsearch?'}
           </h2>
-          <ul className="mt-8 space-y-4">
+          <ul className="mt-10 space-y-5">
             {bullets.map((b) => (
-              <li key={b.icon} className="flex items-start gap-3 text-indigo-100">
-                <span className="mt-0.5 text-xl leading-none">{b.icon}</span>
-                <span className="text-sm leading-relaxed">{b.text}</span>
+              <li key={b.icon} className="flex items-start gap-4">
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white/10 text-lg">
+                  {b.icon}
+                </span>
+                <span className="mt-1.5 text-sm leading-snug text-indigo-100">{b.text}</span>
               </li>
             ))}
           </ul>
         </div>
 
-        <p className="text-xs text-indigo-300">
-          {locale === 'es' ? 'Gratis para siempre · Sin tarjeta de crédito' : 'Free forever · No credit card required'}
+        <p className="relative z-10 text-xs text-indigo-300/70">
+          {isEs ? 'Gratis para siempre · Sin tarjeta de crédito' : 'Free forever · No credit card required'}
         </p>
       </div>
 
-      {/* Right form panel */}
-      <div className="flex flex-1 flex-col items-center justify-center px-6 py-12">
+      {/* ── Right form panel ── */}
+      <div className="flex w-full lg:w-1/2 flex-col items-center justify-center bg-zinc-950 px-6 py-16">
         {/* Mobile back link */}
-        <Link href="/" className="mb-8 self-start text-sm text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 lg:hidden">
-          ← {locale === 'es' ? 'Inicio' : 'Home'}
+        <Link href="/" className="mb-10 self-start text-sm text-zinc-500 hover:text-zinc-200 transition lg:hidden">
+          ← {isEs ? 'Inicio' : 'Home'}
         </Link>
 
-        <div className="w-full max-w-sm">
-          <div className="mb-8">
-            <h1 className="text-2xl font-bold tracking-tight">{t.auth.signup_title}</h1>
-            <p className="mt-1.5 text-sm text-zinc-500 dark:text-zinc-400">
-              {t.auth.have_account}{' '}
-              <Link href="/login" className="font-medium text-indigo-600 hover:underline dark:text-indigo-400">
-                {t.auth.login_link}
-              </Link>
-            </p>
+        <div className="w-full max-w-md">
+          {/* Logo mark */}
+          <div className="mb-10 flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-600">
+              <span className="text-base font-bold text-white">J</span>
+            </div>
+            <span className="font-semibold text-white">Job Tracker</span>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <h1 className="text-2xl font-bold text-white">{t.auth.signup_title}</h1>
+          <p className="mt-2 text-sm text-zinc-400">
+            {t.auth.have_account}{' '}
+            <Link href="/login" className="font-medium text-indigo-400 hover:text-indigo-300 transition">
+              {t.auth.login_link}
+            </Link>
+          </p>
+
+          <form onSubmit={handleSubmit} className="mt-8 space-y-5">
             <div>
-              <label className="mb-1.5 block text-sm font-medium">{t.auth.email}</label>
+              <label className="mb-1.5 block text-sm font-medium text-zinc-300">{t.auth.email}</label>
               <input
                 type="email"
                 required
@@ -117,12 +144,12 @@ export default function SignupPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@example.com"
-                className="field"
+                className="w-full rounded-xl border border-zinc-700 bg-zinc-900 px-4 py-2.5 text-sm text-zinc-100 placeholder-zinc-600 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
               />
             </div>
 
             <div>
-              <label className="mb-1.5 block text-sm font-medium">{t.auth.password}</label>
+              <label className="mb-1.5 block text-sm font-medium text-zinc-300">{t.auth.password}</label>
               <input
                 type="password"
                 required
@@ -130,15 +157,15 @@ export default function SignupPage() {
                 autoComplete="new-password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="field"
+                className="w-full rounded-xl border border-zinc-700 bg-zinc-900 px-4 py-2.5 text-sm text-zinc-100 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
               />
-              <p className="mt-1 text-xs text-zinc-400">
-                {locale === 'es' ? 'Mínimo 6 caracteres' : 'Minimum 6 characters'}
+              <p className="mt-1.5 text-xs text-zinc-600">
+                {isEs ? 'Mínimo 6 caracteres' : 'Minimum 6 characters'}
               </p>
             </div>
 
             {error && (
-              <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600 dark:bg-red-950/50 dark:text-red-400">
+              <p className="rounded-xl border border-red-800/50 bg-red-950/60 px-4 py-2.5 text-sm text-red-400">
                 {error}
               </p>
             )}
@@ -146,21 +173,22 @@ export default function SignupPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-indigo-700 disabled:opacity-60"
+              className="w-full rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-indigo-500 disabled:opacity-60"
             >
               {loading ? t.auth.signing_up : t.auth.signup_button}
             </button>
           </form>
 
-          <div className="my-5 flex items-center gap-3">
-            <div className="h-px flex-1 bg-zinc-200 dark:bg-zinc-700" />
-            <span className="text-xs text-zinc-400">{locale === 'es' ? 'o prueba primero' : 'or try first'}</span>
-            <div className="h-px flex-1 bg-zinc-200 dark:bg-zinc-700" />
+          <div className="my-6 flex items-center gap-4">
+            <div className="h-px flex-1 bg-zinc-800" />
+            <span className="text-xs text-zinc-600">{isEs ? 'o prueba primero' : 'or try first'}</span>
+            <div className="h-px flex-1 bg-zinc-800" />
           </div>
 
-          <DemoButton className="w-full rounded-lg border border-zinc-200 px-4 py-2.5 text-sm font-medium text-zinc-600 transition hover:bg-zinc-50 disabled:opacity-60 dark:border-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-800" />
+          <DemoButton className="w-full rounded-xl border border-zinc-700 bg-zinc-900 px-4 py-2.5 text-sm font-medium text-zinc-300 transition hover:border-zinc-600 hover:bg-zinc-800 hover:text-zinc-100 disabled:opacity-60" />
         </div>
       </div>
+
     </div>
   )
 }
