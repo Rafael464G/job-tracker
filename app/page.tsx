@@ -2,21 +2,28 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
 import DemoButton from '@/components/DemoButton'
+import LanguageToggle from '@/components/LanguageToggle'
+import ThemeToggle from '@/components/ThemeToggle'
 
 export default async function LandingPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (user) redirect('/dashboard')
 
+  const year = new Date().getFullYear()
+
   return (
     <div className="min-h-screen bg-white text-zinc-900 dark:bg-zinc-950 dark:text-zinc-100">
+
       {/* Nav */}
       <nav className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
         <span className="font-semibold tracking-tight">Job Tracker</span>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
+          <LanguageToggle />
+          <ThemeToggle />
           <Link
             href="/login"
-            className="text-sm text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100"
+            className="hidden text-sm text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 sm:block px-3 py-1.5"
           >
             Sign in
           </Link>
@@ -49,26 +56,20 @@ export default async function LandingPage() {
             Start tracking for free →
           </Link>
           <DemoButton className="rounded-xl border border-zinc-200 px-6 py-3 font-medium text-zinc-600 hover:bg-zinc-50 disabled:opacity-60 dark:border-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-900" />
-          <Link
-            href="/login"
-            className="rounded-xl border border-zinc-200 px-6 py-3 font-medium text-zinc-600 hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-900"
-          >
-            Sign in
-          </Link>
         </div>
       </section>
 
       {/* App Preview */}
       <section className="mx-auto max-w-4xl px-6 pb-20">
         <div className="overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-2xl dark:border-zinc-800 dark:bg-zinc-900">
-          {/* Fake header bar */}
+          {/* Fake browser chrome */}
           <div className="flex items-center justify-between border-b border-zinc-100 bg-zinc-50 px-5 py-3 dark:border-zinc-800 dark:bg-zinc-950">
             <div className="flex items-center gap-2">
               <div className="h-3 w-3 rounded-full bg-red-300" />
               <div className="h-3 w-3 rounded-full bg-amber-300" />
               <div className="h-3 w-3 rounded-full bg-green-300" />
             </div>
-            <span className="text-xs font-medium text-zinc-400">job-tracker.app/dashboard</span>
+            <span className="text-xs font-medium text-zinc-400">job-tracker-iota-ten.vercel.app/dashboard</span>
             <div />
           </div>
 
@@ -139,7 +140,7 @@ export default async function LandingPage() {
                           <p className="text-xs font-medium leading-tight">{c}</p>
                           {star && <span className="text-xs text-amber-400">★</span>}
                         </div>
-                        <p className="mt-0.5 text-xs text-zinc-400 leading-tight truncate">{p}</p>
+                        <p className="mt-0.5 truncate text-xs leading-tight text-zinc-400">{p}</p>
                       </div>
                     ))}
                   </div>
@@ -157,26 +158,10 @@ export default async function LandingPage() {
           <p className="mb-12 text-center text-zinc-500 dark:text-zinc-400">Built for real job hunters, not enterprise HR teams.</p>
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {[
-              {
-                icon: '📋',
-                title: 'Track Everything',
-                desc: 'Company, position, salary, notes, links, and status — all in one place.',
-              },
-              {
-                icon: '📊',
-                title: 'Visual Pipeline',
-                desc: 'Kanban board, conversion rates, activity charts. See your search at a glance.',
-              },
-              {
-                icon: '🔔',
-                title: 'Smart Reminders',
-                desc: 'Set follow-up dates. Get nudged before an opportunity goes cold.',
-              },
-              {
-                icon: '⭐',
-                title: 'Priority Jobs',
-                desc: 'Star your dream roles. They float to the top and stand out in gold.',
-              },
+              { icon: '📋', title: 'Track Everything', desc: 'Company, position, salary, notes, links, and status — all in one place.' },
+              { icon: '📊', title: 'Visual Pipeline', desc: 'Kanban board, conversion rates, activity charts. See your search at a glance.' },
+              { icon: '🔔', title: 'Smart Reminders', desc: 'Set follow-up dates. Get nudged before an opportunity goes cold.' },
+              { icon: '⭐', title: 'Priority Jobs', desc: 'Star your dream roles. They float to the top and stand out in gold.' },
             ].map((f) => (
               <div key={f.title} className="rounded-2xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900">
                 <span className="text-2xl">{f.icon}</span>
@@ -188,7 +173,7 @@ export default async function LandingPage() {
         </div>
       </section>
 
-      {/* Extra features list */}
+      {/* Extra features pills */}
       <section className="mx-auto max-w-3xl px-6 py-20">
         <div className="grid gap-4 sm:grid-cols-3">
           {[
@@ -210,18 +195,28 @@ export default async function LandingPage() {
       <section className="bg-indigo-600 py-20 text-center text-white">
         <h2 className="text-2xl font-bold">Start tracking smarter today.</h2>
         <p className="mt-2 text-indigo-200">Free forever. No credit card.</p>
-        <Link
-          href="/signup"
-          className="mt-6 inline-block rounded-xl bg-white px-8 py-3 font-semibold text-indigo-600 hover:bg-indigo-50"
-        >
-          Create your free account →
-        </Link>
+        <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+          <Link
+            href="/signup"
+            className="rounded-xl bg-white px-8 py-3 font-semibold text-indigo-600 hover:bg-indigo-50"
+          >
+            Create your free account →
+          </Link>
+          <DemoButton className="rounded-xl border border-indigo-400 px-8 py-3 font-semibold text-white hover:bg-indigo-500 disabled:opacity-60" />
+        </div>
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-zinc-100 py-8 text-center text-sm text-zinc-400 dark:border-zinc-800">
-        Job Tracker · 2025 · Built for job seekers
+      <footer className="border-t border-zinc-100 py-8 dark:border-zinc-800">
+        <div className="mx-auto flex max-w-5xl flex-col items-center justify-between gap-4 px-6 sm:flex-row">
+          <span className="text-sm text-zinc-400">© {year} Job Tracker · Built for job seekers</span>
+          <div className="flex items-center gap-5 text-sm text-zinc-400">
+            <Link href="/login" className="hover:text-zinc-700 dark:hover:text-zinc-200 transition">Sign in</Link>
+            <Link href="/signup" className="hover:text-zinc-700 dark:hover:text-zinc-200 transition">Create account</Link>
+          </div>
+        </div>
       </footer>
+
     </div>
   )
 }
