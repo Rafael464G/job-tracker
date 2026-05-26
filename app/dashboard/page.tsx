@@ -18,13 +18,21 @@ export default async function DashboardPage() {
 
   const apps: Application[] = applications ?? []
 
+  const isAnonymous = (user as { is_anonymous?: boolean }).is_anonymous === true
+
   return (
     <div className="min-h-full">
       <header className="sticky top-0 z-10 border-b border-zinc-200 bg-white/80 backdrop-blur dark:border-zinc-800 dark:bg-zinc-950/80">
         <div className="mx-auto flex max-w-4xl items-center justify-between px-4 py-3">
           <h1 className="font-semibold tracking-tight">Job Tracker</h1>
           <div className="flex items-center gap-2">
-            <span className="hidden text-sm text-zinc-400 sm:block">{user.email}</span>
+            {isAnonymous ? (
+              <span className="rounded-full bg-indigo-100 px-2.5 py-0.5 text-xs font-medium text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300">
+                Demo
+              </span>
+            ) : (
+              <span className="hidden text-sm text-zinc-400 sm:block">{user.email}</span>
+            )}
             <LanguageToggle />
             <ThemeToggle />
             <LogoutButton />
@@ -33,7 +41,7 @@ export default async function DashboardPage() {
       </header>
 
       <main className="mx-auto max-w-4xl px-4 py-8">
-        <DashboardContent applications={apps} />
+        <DashboardContent applications={apps} isAnonymous={isAnonymous} />
       </main>
     </div>
   )

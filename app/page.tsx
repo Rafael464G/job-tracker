@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
+import DemoButton from '@/components/DemoButton'
 
 export default async function LandingPage() {
   const supabase = await createClient()
@@ -47,6 +48,7 @@ export default async function LandingPage() {
           >
             Start tracking for free →
           </Link>
+          <DemoButton className="rounded-xl border border-zinc-200 px-6 py-3 font-medium text-zinc-600 hover:bg-zinc-50 disabled:opacity-60 dark:border-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-900" />
           <Link
             href="/login"
             className="rounded-xl border border-zinc-200 px-6 py-3 font-medium text-zinc-600 hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-900"

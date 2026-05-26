@@ -13,8 +13,9 @@ import ApplicationList from './ApplicationList'
 import KanbanBoard from './KanbanBoard'
 import FollowUpAlert from './FollowUpAlert'
 import ApplicationForm from './ApplicationForm'
+import DemoBanner from './DemoBanner'
 
-export default function DashboardContent({ applications }: { applications: Application[] }) {
+export default function DashboardContent({ applications, isAnonymous }: { applications: Application[]; isAnonymous?: boolean }) {
   const { t } = useLanguage()
   const router = useRouter()
   const [view, setView] = useState<'list' | 'kanban' | 'calendar'>('list')
@@ -22,6 +23,8 @@ export default function DashboardContent({ applications }: { applications: Appli
 
   return (
     <div className="space-y-6">
+      {isAnonymous && <DemoBanner />}
+
       {alertEditing !== undefined && (
         <ApplicationForm
           application={alertEditing}

@@ -137,6 +137,13 @@ export const translations = {
       login_link: 'Sign in',
       check_email: 'Check your email to confirm your account.',
     },
+    demo: {
+      button: 'Try without signing up',
+      loading: 'Setting up demo…',
+      banner: '👋 You\'re in demo mode. Your data will be deleted in 24 hours.',
+      banner_cta: 'Create a free account to save your progress →',
+      label: 'Demo',
+    },
   },
 
   es: {
@@ -274,6 +281,13 @@ export const translations = {
       have_account: '¿Ya tienes cuenta?',
       login_link: 'Inicia sesión',
       check_email: 'Revisa tu correo para confirmar tu cuenta.',
+    },
+    demo: {
+      button: 'Probar sin registrarse',
+      loading: 'Preparando demo…',
+      banner: '👋 Estás en modo demo. Tus datos se eliminarán en 24 horas.',
+      banner_cta: 'Crea una cuenta gratis para guardar tu progreso →',
+      label: 'Demo',
     },
   },
 } satisfies Record<Locale, unknown>
