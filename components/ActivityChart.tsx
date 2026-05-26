@@ -13,13 +13,13 @@ function getWeekLabel(dateStr: string) {
   return `S${week}`
 }
 
-function getMonthLabel(dateStr: string) {
+function getMonthLabel(dateStr: string, locale: string) {
   const [y, m] = dateStr.split('-').map(Number)
-  return new Date(y, m - 1, 1).toLocaleDateString('es-ES', { month: 'short', year: '2-digit' })
+  return new Date(y, m - 1, 1).toLocaleDateString(locale, { month: 'short', year: '2-digit' })
 }
 
 export default function ActivityChart({ applications }: { applications: Application[] }) {
-  const { t } = useLanguage()
+  const { t, locale } = useLanguage()
   const data = useMemo(() => {
     if (applications.length === 0) return []
 
@@ -32,12 +32,12 @@ export default function ActivityChart({ applications }: { applications: Applicat
 
     const counts: Record<string, number> = {}
     for (const app of applications) {
-      const key = useMonths ? getMonthLabel(app.applied_at) : getWeekLabel(app.applied_at)
+      const key = useMonths ? getMonthLabel(app.applied_at, locale) : getWeekLabel(app.applied_at)
       counts[key] = (counts[key] ?? 0) + 1
     }
 
     return Object.entries(counts).map(([label, count]) => ({ label, count }))
-  }, [applications])
+  }, [applications, locale])
 
   if (data.length < 2) return null
 

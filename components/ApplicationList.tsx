@@ -26,9 +26,9 @@ const SORT_OPTIONS = [
   { label: 'Estado', value: 'status' },
 ]
 
-function formatDate(dateStr: string) {
+function formatDate(dateStr: string, locale: string) {
   const [y, m, d] = dateStr.split('-').map(Number)
-  return new Date(y, m - 1, d).toLocaleDateString('es-ES', {
+  return new Date(y, m - 1, d).toLocaleDateString(locale, {
     day: '2-digit', month: 'short', year: 'numeric',
   })
 }
@@ -66,7 +66,7 @@ function exportCSV(applications: Application[]) {
 
 export default function ApplicationList({ applications }: { applications: Application[] }) {
   const { toast } = useToast()
-  const { t } = useLanguage()
+  const { t, locale } = useLanguage()
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const [filter, setFilter] = useState<'all' | Status>('all')
@@ -291,7 +291,7 @@ export default function ApplicationList({ applications }: { applications: Applic
                   <p className="mt-0.5 text-xs text-zinc-400">💰 {app.salary}</p>
                 )}
                 <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-zinc-400">
-                  <span>{formatDate(app.applied_at)}</span>
+                  <span>{formatDate(app.applied_at, locale)}</span>
                   {app.follow_up_at && (() => {
                     const today = new Date().toISOString().split('T')[0]
                     const isOverdue = app.follow_up_at < today
@@ -300,7 +300,7 @@ export default function ApplicationList({ applications }: { applications: Applic
                       <span className={`flex items-center gap-1 font-medium ${
                         isOverdue ? 'text-red-500' : isToday ? 'text-amber-500' : 'text-zinc-400'
                       }`}>
-                        🔔 {isOverdue ? t.followup.badge_overdue : isToday ? t.followup.badge_today : t.followup.badge_upcoming(formatDate(app.follow_up_at))}
+                        🔔 {isOverdue ? t.followup.badge_overdue : isToday ? t.followup.badge_today : t.followup.badge_upcoming(formatDate(app.follow_up_at, locale))}
                       </span>
                     )
                   })()}

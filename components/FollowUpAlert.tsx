@@ -14,15 +14,15 @@ function parseLocal(dateStr: string) {
   return new Date(y, m - 1, d)
 }
 
-function formatDate(dateStr: string) {
-  return parseLocal(dateStr).toLocaleDateString('es-ES', { day: '2-digit', month: 'short' })
+function formatDate(dateStr: string, locale: string) {
+  return parseLocal(dateStr).toLocaleDateString(locale, { day: '2-digit', month: 'short' })
 }
 
 export default function FollowUpAlert({ applications, onEdit }: {
   applications: Application[]
   onEdit: (app: Application) => void
 }) {
-  const { t } = useLanguage()
+  const { t, locale } = useLanguage()
   const [dismissed, setDismissed] = useState<Set<string>>(new Set())
   const todayStr = today()
 
@@ -70,7 +70,7 @@ export default function FollowUpAlert({ applications, onEdit }: {
                   >
                     <div className="flex min-w-0 items-center gap-2">
                       <span className={`text-xs font-bold ${isOverdue ? 'text-red-500' : 'text-amber-600 dark:text-amber-400'}`}>
-                        {isOverdue ? t.followup.overdue(formatDate(app.follow_up_at!)) : t.followup.today}
+                        {isOverdue ? t.followup.overdue(formatDate(app.follow_up_at!, locale)) : t.followup.today}
                       </span>
                       <span className="text-zinc-300 dark:text-zinc-600">·</span>
                       <p className="truncate text-sm font-medium">{app.company}</p>
@@ -105,7 +105,7 @@ export default function FollowUpAlert({ applications, onEdit }: {
             <div className="flex items-center gap-2">
               <span className="text-sm">📅</span>
               <p className="text-sm text-zinc-500 dark:text-zinc-400">
-                {t.followup.upcoming(upcoming[0].company, formatDate(upcoming[0].follow_up_at!))}
+                {t.followup.upcoming(upcoming[0].company, formatDate(upcoming[0].follow_up_at!, locale))}
               </p>
             </div>
           </div>

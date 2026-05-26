@@ -1,3 +1,5 @@
+"use client"
+
 import { Application, Status, STATUS_COLORS, STATUS_BG } from '@/types/application'
 import { useLanguage } from './LanguageProvider'
 

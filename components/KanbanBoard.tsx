@@ -28,9 +28,9 @@ const COLUMN_COLORS: Record<Status, string> = {
   rejected: 'border-t-red-400',
 }
 
-function formatDate(dateStr: string) {
+function formatDate(dateStr: string, locale: string) {
   const [y, m, d] = dateStr.split('-').map(Number)
-  return new Date(y, m - 1, d).toLocaleDateString('es-ES', { day: '2-digit', month: 'short' })
+  return new Date(y, m - 1, d).toLocaleDateString(locale, { day: '2-digit', month: 'short' })
 }
 
 function KanbanColumnTitle({ status }: { status: Status }) {
@@ -63,11 +63,12 @@ function KanbanCardButtons({ onEdit, onDelete, deleting }: {
   )
 }
 
-function KanbanCard({ app, onEdit, onDelete, deleting }: {
+function KanbanCard({ app, onEdit, onDelete, deleting, locale }: {
   app: Application
   onEdit: () => void
   onDelete: () => void
   deleting: boolean
+  locale: string
 }) {
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({ id: app.id })
 
@@ -77,21 +78,27 @@ function KanbanCard({ app, onEdit, onDelete, deleting }: {
       {...listeners}
       {...attributes}
       style={{ transform: CSS.Translate.toString(transform) }}
-      className={`cursor-grab rounded-lg border border-zinc-200 bg-white p-3 shadow-sm active:cursor-grabbing dark:border-zinc-700 dark:bg-zinc-800 ${
-        isDragging ? 'opacity-40' : ''
-      }`}
+      className={`cursor-grab rounded-lg border p-3 shadow-sm active:cursor-grabbing ${
+        app.is_starred
+          ? 'border-amber-200 bg-amber-50 dark:border-amber-800/40 dark:bg-amber-950/20'
+          : 'border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-800'
+      } ${isDragging ? 'opacity-40' : ''}`}
     >
       <div className="flex items-start gap-2">
         <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-xs font-bold ${STATUS_BG[app.status]}`}>
           {app.company.slice(0, 2).toUpperCase()}
         </span>
-        <div className="min-w-0">
-          <p className="font-medium text-sm leading-tight truncate">{app.company}</p>
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center justify-between gap-1">
+            <p className="font-medium text-sm leading-tight truncate">{app.company}</p>
+            {app.is_starred && <span className="shrink-0 text-xs text-amber-400">★</span>}
+          </div>
           <p className="mt-0.5 text-xs text-zinc-500 leading-tight truncate">{app.position}</p>
+          {app.salary && <p className="mt-0.5 text-xs text-zinc-400 truncate">💰 {app.salary}</p>}
         </div>
       </div>
       <div className="mt-2 flex items-center justify-between">
-        <span className="text-xs text-zinc-400">{formatDate(app.applied_at)}</span>
+        <span className="text-xs text-zinc-400">{formatDate(app.applied_at, locale)}</span>
         <div className="flex gap-1">
           <KanbanCardButtons onEdit={onEdit} onDelete={onDelete} deleting={deleting} />
         </div>
@@ -100,12 +107,13 @@ function KanbanCard({ app, onEdit, onDelete, deleting }: {
   )
 }
 
-function KanbanColumn({ status, apps, onEdit, onDelete, deletingId }: {
+function KanbanColumn({ status, apps, onEdit, onDelete, deletingId, locale }: {
   status: Status
   apps: Application[]
   onEdit: (app: Application) => void
   onDelete: (id: string) => void
   deletingId: string | null
+  locale: string
 }) {
   const { setNodeRef, isOver } = useDroppable({ id: status })
 
@@ -133,6 +141,7 @@ function KanbanColumn({ status, apps, onEdit, onDelete, deletingId }: {
             onEdit={() => onEdit(app)}
             onDelete={() => onDelete(app.id)}
             deleting={deletingId === app.id}
+            locale={locale}
           />
         ))}
       </div>
@@ -142,6 +151,7 @@ function KanbanColumn({ status, apps, onEdit, onDelete, deletingId }: {
 
 export default function KanbanBoard({ applications }: { applications: Application[] }) {
   const router = useRouter()
+  const { t, locale } = useLanguage()
   const [, startTransition] = useTransition()
   const [apps, setApps] = useState(applications)
   const [draggingId, setDraggingId] = useState<string | null>(null)
@@ -155,7 +165,7 @@ export default function KanbanBoard({ applications }: { applications: Applicatio
   }
 
   async function handleDelete(id: string) {
-    if (!confirm('¿Eliminar esta postulación?')) return
+    if (!confirm(t.kanban.confirm_delete)) return
     setDeletingId(id)
     const supabase = createClient()
     await supabase.from('applications').delete().eq('id', id)
@@ -221,6 +231,7 @@ export default function KanbanBoard({ applications }: { applications: Applicatio
               onEdit={setEditing}
               onDelete={handleDelete}
               deletingId={deletingId}
+              locale={locale}
             />
           ))}
         </div>
