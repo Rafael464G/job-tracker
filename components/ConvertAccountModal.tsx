@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { createClient } from '@/lib/supabase/client'
 import { useLanguage } from './LanguageProvider'
+import Link from 'next/link'
 
 interface Props {
   onClose: () => void
@@ -12,7 +13,6 @@ interface Props {
 export default function ConvertAccountModal({ onClose }: Props) {
   const { t } = useLanguage()
   const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [done, setDone] = useState(false)
@@ -22,10 +22,11 @@ export default function ConvertAccountModal({ onClose }: Props) {
     setError('')
     setLoading(true)
     const supabase = createClient()
-    // updateUser on an anonymous session upgrades it to a real account.
-    // The user's UUID stays identical — all their applications are preserved automatically.
+    // Only send email — no password yet. Supabase sends a confirmation link.
+    // UUID stays the same after confirmation, all data preserved automatically.
+    // Password is set separately after email confirmation via reset flow.
     const { error } = await supabase.auth.updateUser(
-      { email: email.trim(), password },
+      { email: email.trim() },
       { emailRedirectTo: `${location.origin}/auth/callback` }
     )
     setLoading(false)
@@ -60,9 +61,17 @@ export default function ConvertAccountModal({ onClose }: Props) {
               </div>
               <h2 className="mb-2 text-xl font-bold">{t.convert.success_title}</h2>
               <p className="text-sm text-zinc-500 dark:text-zinc-400">{t.convert.success_body}</p>
+              <Link
+                href="/login"
+                className="mt-6 inline-block text-sm font-medium text-indigo-600 hover:underline dark:text-indigo-400"
+                onClick={onClose}
+              >
+                {t.forgot_password.link} →
+              </Link>
+              <br />
               <button
                 onClick={onClose}
-                className="mt-6 rounded-lg bg-indigo-600 px-6 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700"
+                className="mt-3 rounded-lg bg-indigo-600 px-6 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700"
               >
                 OK
               </button>
@@ -70,9 +79,7 @@ export default function ConvertAccountModal({ onClose }: Props) {
           ) : (
             <>
               <div className="flex items-center justify-between border-b border-zinc-200 px-6 py-4 dark:border-zinc-800">
-                <div>
-                  <h2 className="font-semibold">{t.convert.modal_title}</h2>
-                </div>
+                <h2 className="font-semibold">{t.convert.modal_title}</h2>
                 <button
                   onClick={onClose}
                   aria-label="Close"
@@ -99,19 +106,6 @@ export default function ConvertAccountModal({ onClose }: Props) {
                       placeholder="you@example.com"
                       className="field"
                     />
-                  </div>
-                  <div>
-                    <label className="mb-1.5 block text-sm font-medium">{t.convert.password_label}</label>
-                    <input
-                      type="password"
-                      required
-                      minLength={6}
-                      autoComplete="new-password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      className="field"
-                    />
-                    <p className="mt-1 text-xs text-zinc-400">{t.convert.password_hint}</p>
                   </div>
 
                   {error && (
