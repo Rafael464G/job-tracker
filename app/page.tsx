@@ -4,6 +4,7 @@ import Link from 'next/link'
 import DemoButton from '@/components/DemoButton'
 import LanguageToggle from '@/components/LanguageToggle'
 import ThemeToggle from '@/components/ThemeToggle'
+import WaitlistForm from '@/components/WaitlistForm'
 
 export default async function LandingPage() {
   const supabase = await createClient()
@@ -188,6 +189,17 @@ export default async function LandingPage() {
               {f}
             </div>
           ))}
+        </div>
+      </section>
+
+      {/* Waitlist */}
+      <section className="border-t border-zinc-100 py-16 dark:border-zinc-800">
+        <div className="mx-auto max-w-xl px-6 text-center">
+          <h2 className="mb-1.5 text-xl font-bold">Stay in the loop</h2>
+          <p className="mb-6 text-sm text-zinc-500 dark:text-zinc-400">
+            Get notified about new features and improvements. No spam.
+          </p>
+          <WaitlistForm />
         </div>
       </section>
 

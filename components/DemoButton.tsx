@@ -15,20 +15,14 @@ export default function DemoButton({ className }: { className?: string }) {
     setLoading(true)
     const supabase = createClient()
     const { data, error } = await supabase.auth.signInAnonymously()
-    if (error || !data.user) {
-      setLoading(false)
-      return
-    }
+    if (error || !data.user) { setLoading(false); return }
+    try { localStorage.setItem('demo_started_at', Date.now().toString()) } catch {}
     await seedDemoData(supabase, data.user.id)
     router.push('/dashboard')
   }
 
   return (
-    <button
-      onClick={handleDemo}
-      disabled={loading}
-      className={className}
-    >
+    <button onClick={handleDemo} disabled={loading} className={className}>
       {loading ? t.demo.loading : t.demo.button}
     </button>
   )
