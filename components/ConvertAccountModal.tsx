@@ -27,7 +27,7 @@ export default function ConvertAccountModal({ onClose }: Props) {
     // Password is set separately after email confirmation via reset flow.
     const { error } = await supabase.auth.updateUser(
       { email: email.trim() },
-      { emailRedirectTo: `${location.origin}/auth/callback` }
+      { emailRedirectTo: `${location.origin}/auth/callback?next=set-password` }
     )
     setLoading(false)
     if (error) { setError(error.message); return }

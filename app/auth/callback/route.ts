@@ -5,6 +5,7 @@ export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get("code");
   const type = searchParams.get("type");
+  const next = searchParams.get("next");
 
   if (code) {
     const supabase = await createClient();
@@ -12,7 +13,7 @@ export async function GET(request: Request) {
   }
 
   // Password reset links carry type=recovery — send to the set-password page
-  if (type === "recovery") {
+  if (type === "recovery" || next === "set-password") {
     return NextResponse.redirect(`${origin}/auth/reset`);
   }
 

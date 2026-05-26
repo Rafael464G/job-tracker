@@ -170,7 +170,7 @@ export const translations = {
       error_generic: 'Something went wrong. Please try again.',
     },
     forgot_password: {
-      link: 'Forgot password?',
+      link: 'Set or reset password',
       title: 'Reset your password',
       subtitle: 'We\'ll email you a link to set a new password.',
       placeholder: 'your@email.com',
@@ -358,7 +358,7 @@ export const translations = {
       error_generic: 'Algo salió mal. Intenta de nuevo.',
     },
     forgot_password: {
-      link: '¿Olvidaste tu contraseña?',
+      link: 'Establecer o restablecer contraseña',
       title: 'Restablecer contraseña',
       subtitle: 'Te enviamos un enlace para establecer una nueva contraseña.',
       placeholder: 'tu@correo.com',
