@@ -65,8 +65,8 @@ export default function DemoBanner() {
                   ? t.demo_timer.expires_soon
                   : `👋 ${t.demo.banner}`}
               {remaining !== null && !isExpired && (
-                <span className="ml-2 font-normal opacity-75">
-                  · {t.demo_timer.expires_in(formatRemaining(remaining))}
+                <span className="ml-2 font-normal opacity-60 text-xs">
+                  ({t.demo_timer.expires_in(formatRemaining(remaining))})
                 </span>
               )}
             </p>
